@@ -359,13 +359,15 @@ header{padding:20px 0 20px;display:flex;align-items:center;gap:12px;margin-botto
     <div class="cat-toggle-wrap">
       <div class="cat-toggle-label">シャッフル対象</div>
       <div class="cat-toggles" id="cat-toggles">
-        <div class="cat-toggle on" data-cat="theme"       onclick="toggleCat(this)"><span class="check"></span>テーマ</div>
-        <div class="cat-toggle on" data-cat="composition" onclick="toggleCat(this)"><span class="check"></span>構図</div>        <div class="cat-toggle on" data-cat="pose"        onclick="toggleCat(this)"><span class="check"></span>ポーズ</div>
+        <div class="cat-toggle"    data-cat="theme"       onclick="toggleCat(this)"><span class="check"></span>テーマ</div>
+        <div class="cat-toggle"    data-cat="composition" onclick="toggleCat(this)"><span class="check"></span>構図</div>
+        <div class="cat-toggle"    data-cat="pose"        onclick="toggleCat(this)"><span class="check"></span>ポーズ</div>
         <div class="cat-toggle on" data-cat="outfit"      onclick="toggleCat(this)"><span class="check"></span>衣装</div>
-        <div class="cat-toggle on" data-cat="hair"        onclick="toggleCat(this)"><span class="check"></span>髪型</div>        <div class="cat-toggle on" data-cat="color"       onclick="toggleCat(this)"><span class="check"></span>ベースカラー</div>
+        <div class="cat-toggle on" data-cat="hair"        onclick="toggleCat(this)"><span class="check"></span>髪型</div>
+        <div class="cat-toggle on" data-cat="color"       onclick="toggleCat(this)"><span class="check"></span>ベースカラー</div>
         <div class="cat-toggle"    data-cat="gijinka"     onclick="toggleCat(this)"><span class="check"></span>擬人化</div>
         <div class="cat-toggle"    data-cat="items"       onclick="toggleCat(this)"><span class="check"></span>小物</div>
-        <div class="cat-toggle"    data-cat="facial"      onclick="toggleCat(this)"><span class="check"></span>表情</div>
+        <div class="cat-toggle on" data-cat="facial"      onclick="toggleCat(this)"><span class="check"></span>表情</div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="selectAllCats(true)">すべて選択</button>

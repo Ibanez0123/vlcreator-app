@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VLCreator — 絵師のアイデアジェネレーター</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FFFBE8;--bg2:#FFF5C8;--yellow:#FFD94A;--yellow2:#FFC107;
+  --orange:#FF8C42;--green:#4CAF7D;--blue:#5B9BD5;--purple:#9B7EC8;
+  --ink:#2D2A1E;--muted:#8C8470;--border:rgba(45,42,30,0.12);--white:#FFFFFF;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 4px 20px rgba(45,42,30,0.10);--shadow-lg:0 8px 32px rgba(45,42,30,0.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle 400px at 10% 20%,rgba(255,217,74,0.30) 0%,transparent 70%),radial-gradient(circle 300px at 90% 80%,rgba(255,140,66,0.15) 0%,transparent 70%),radial-gradient(circle 250px at 80% 10%,rgba(76,175,125,0.12) 0%,transparent 70%),radial-gradient(circle 200px at 20% 85%,rgba(91,155,213,0.10) 0%,transparent 70%);}
+.wrapper{position:relative;z-index:1;width:100%;max-width:800px;padding:48px 24px 60px;display:flex;flex-direction:column;align-items:center;}
+.hero{text-align:center;margin-bottom:56px;}
+.logo-wrap{display:inline-flex;align-items:center;gap:14px;margin-bottom:16px;}
+.logo-icon{width:64px;height:64px;background:var(--yellow);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 0 var(--yellow2),var(--shadow);}
+.logo-text{font-size:42px;font-weight:900;color:var(--ink);letter-spacing:-0.02em;line-height:1;}
+.logo-text span{color:var(--orange);}
+.tagline{display:inline-block;font-size:13px;font-weight:700;color:var(--muted);background:var(--white);border-radius:20px;padding:5px 16px;border:1.5px solid var(--border);margin-bottom:20px;letter-spacing:0.06em;}
+.hero-desc{font-size:15px;color:var(--muted);line-height:1.9;max-width:360px;margin:0 auto;}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:640px;}
+.nav-card{text-decoration:none;background:var(--white);border-radius:var(--radius);padding:28px 24px 24px;display:flex;flex-direction:column;gap:12px;border:2px solid transparent;box-shadow:var(--shadow);transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;position:relative;overflow:hidden;}
+.nav-card::after{content:'→';position:absolute;bottom:20px;right:20px;font-size:18px;font-weight:900;opacity:0.2;transition:opacity 0.18s,transform 0.18s;}
+.nav-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.nav-card:hover::after{opacity:0.6;transform:translateX(3px);}
+.nav-card.cal{border-color:var(--blue);}
+.nav-card.cal:hover{background:#f0f6ff;}
+.nav-card.roul{border-color:var(--orange);}
+.nav-card.roul:hover{background:#fff8f0;}
+.card-bar{position:absolute;top:0;left:0;right:0;height:5px;border-radius:var(--radius) var(--radius) 0 0;}
+.nav-card.cal .card-bar{background:var(--blue);}
+.nav-card.roul .card-bar{background:var(--orange);}
+.card-emoji{font-size:40px;line-height:1;}
+.card-title{font-size:20px;font-weight:900;color:var(--ink);}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.8;}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.card-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border);}
+.footer{margin-top:48px;font-size:12px;color:var(--muted);text-align:center;opacity:0.7;}
+@media(max-width:520px){.logo-text{font-size:32px;}.cards{grid-template-columns:1fr;max-width:340px;}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="hero">
+    <div class="logo-wrap">
+      <div class="logo-icon">🎨</div>
+      <div class="logo-text">VLC<span>reator</span></div>
+    </div>
+    <div class="tagline">絵師のためのアイデアジェネレーター</div>
+    <div class="hero-desc">描くアイデアに迷ったとき。<br>新しいテーマを探したいとき。<br>今日の創作をここからはじめよう。</div>
+  </div>
+  <div class="cards">
+    <a class="nav-card cal" href="calendar.html">
+      <div class="card-bar"></div>
+      <div class="card-emoji">📅</div>
+      <div class="card-title">カレンダー</div>
+      <div class="card-desc">今日の絵師トレンドをチェック。TODOや制作メモも書き込める創作手帳。</div>
+      <div class="card-tags"><span class="card-tag">トレンドお題</span><span class="card-tag">TODO管理</span><span class="card-tag">記念日</span></div>
+    </a>
+    <a class="nav-card roul" href="roulette.html">
+      <div class="card-bar"></div>
+      <div class="card-emoji">🎲</div>
+      <div class="card-title">お題ルーレット</div>
+      <div class="card-desc">テーマ・構図・ポーズ・衣装・カラーをランダムまたは手動で組み合わせ。</div>
+      <div class="card-tags"><span class="card-tag">ランダム生成</span><span class="card-tag">手動選択</span><span class="card-tag">お題箱</span></div>
+    </a>
+  </div>
+  <div class="footer">ローカルで完全動作 · データはすべてブラウザに保存</div>
+</div>
+</body>
+</html>

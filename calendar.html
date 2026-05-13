@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カレンダー — VLCreator</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFFBE8;--bg2:#FFF5C8;--yellow:#FFD94A;--yellow2:#FFC107;--orange:#FF8C42;--green:#4CAF7D;--blue:#5B9BD5;--purple:#9B7EC8;--ink:#2D2A1E;--muted:#8C8470;--border:rgba(45,42,30,0.12);--white:#FFFFFF;--card-bg:#FFFFFF;--radius:16px;--radius-sm:10px;--shadow:0 4px 20px rgba(45,42,30,0.08);--shadow-lg:0 8px 32px rgba(45,42,30,0.12);--accent:var(--orange);--accent2:var(--blue);--accent3:var(--purple);--paper:var(--bg);--paper2:var(--bg2);--gold:var(--yellow2);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle 500px at 0% 0%,rgba(255,217,74,0.20) 0%,transparent 60%),radial-gradient(circle 400px at 100% 100%,rgba(91,155,213,0.12) 0%,transparent 60%);}
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+header{padding:20px 0 20px;display:flex;align-items:center;gap:12px;margin-bottom:28px;border-bottom:3px solid var(--yellow);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);transition:background 0.15s,color 0.15s;}
+.back-btn:hover{background:var(--yellow);border-color:var(--yellow2);color:var(--ink);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 0 var(--yellow2);}
+.logo{font-size:26px;font-weight:900;color:var(--ink);}
+.logo span{color:var(--orange);}
+.page-title{font-size:13px;font-weight:700;color:var(--muted);margin-left:auto;background:var(--bg2);padding:5px 14px;border-radius:20px;border:2px solid var(--border);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.btn{padding:9px 18px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.15s,transform 0.1s;box-shadow:0 2px 0 var(--border);}
+.btn:hover{background:var(--bg2);transform:translateY(-1px);}
+.btn.primary{background:var(--orange);color:#fff;border-color:var(--orange);box-shadow:0 3px 0 rgba(180,80,20,0.4);}
+.btn.primary:hover{background:#e87830;}
+.btn.ai{background:var(--ink);color:var(--yellow);border-color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,0.3);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.6s linear infinite;}
+.ai-spinner{display:none;align-items:center;gap:10px;padding:16px 0;color:var(--muted);font-size:13px;font-weight:700;}
+.ai-spinner.visible{display:flex;}
+.empty-msg{color:var(--muted);font-size:13px;font-weight:700;padding:20px 0;}
+.api-bar{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:28px;font-size:12px;font-weight:700;box-shadow:var(--shadow);}
+.api-bar label{color:var(--muted);white-space:nowrap;}
+.api-bar input{flex:1;background:transparent;border:none;outline:none;font-size:12px;color:var(--ink);min-width:0;font-family:'Zen Maru Gothic',sans-serif;}
+.api-bar input::placeholder{color:var(--muted);}
+.api-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--bg2);border:1.5px solid var(--border);color:var(--muted);}
+.api-status.ok{color:var(--green);border-color:rgba(76,175,125,0.4);background:rgba(76,175,125,0.08);}
+.cal-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cal-month-label{font-size:22px;font-weight:900;color:var(--ink);flex:1;}
+.cal-nav{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--white);color:var(--ink);font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,transform 0.1s;box-shadow:0 2px 0 var(--border);}
+.cal-nav:hover{background:var(--yellow);border-color:var(--yellow2);transform:scale(1.05);}
+.cal-today-btn{font-family:'Zen Maru Gothic',sans-serif;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:background 0.15s;}
+.cal-today-btn:hover{background:var(--yellow);border-color:var(--yellow2);color:var(--ink);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
+.cal-wd{text-align:center;font-size:12px;font-weight:900;color:var(--muted);padding:6px 0;}
+.cal-wd.sun{color:var(--orange);}
+.cal-wd.sat{color:var(--blue);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:24px;}
+.cal-cell{min-height:88px;border-radius:var(--radius-sm);border:2px solid transparent;background:var(--white);display:flex;flex-direction:column;align-items:stretch;padding:6px 5px 5px;cursor:pointer;transition:background 0.12s,border-color 0.12s,transform 0.1s;box-shadow:0 2px 6px rgba(45,42,30,0.05);}
+.cal-cell:hover{background:var(--bg2);border-color:var(--yellow);transform:translateY(-1px);box-shadow:var(--shadow);}
+.cal-cell.other-month{opacity:0.25;pointer-events:none;box-shadow:none;}
+.cal-cell.selected{background:var(--bg2);border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,140,66,0.15);}
+.cal-day{font-size:13px;font-weight:900;line-height:1;color:var(--ink);text-align:center;width:26px;height:26px;display:flex;align-items:center;justify-content:center;align-self:flex-end;margin-left:auto;border-radius:50%;flex-shrink:0;}
+.cal-cell.today .cal-day{background:var(--orange);color:#fff;box-shadow:0 2px 0 rgba(180,80,20,0.3);}
+.cal-cell.sun .cal-day{color:var(--orange);}
+.cal-cell.sat .cal-day{color:var(--blue);}
+.cal-cell.today .cal-day,.cal-cell.selected.today .cal-day{color:#fff;}
+.cal-event-row{display:flex;align-items:flex-start;gap:3px;margin-top:4px;width:100%;}
+.cal-event-emoji{font-size:12px;line-height:1.4;flex-shrink:0;}
+.cal-event-label{font-size:9px;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;}
+.cal-event-row.is-holiday .cal-event-label{color:var(--orange);}
+.cal-event-row.is-trend .cal-event-label{color:var(--purple);}
+.cal-mini-todo{font-size:9px;font-weight:700;color:var(--ink);line-height:1.3;padding:0 2px;margin-top:2px;width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.cal-mini-todo.all-done{color:var(--muted);text-decoration:line-through;}
+.cal-dots{display:flex;justify-content:flex-start;gap:3px;margin-top:auto;padding-top:3px;}
+.cal-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cal-dot.todo{background:var(--yellow2);}
+.cal-dot.todo.done{background:var(--muted);}
+.cal-dot.odai{background:var(--orange);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.cal-panel{border:2px solid var(--yellow);border-radius:var(--radius);background:var(--white);padding:20px 24px;animation:fadeUp 0.2s ease;box-shadow:var(--shadow-lg);}
+.cal-panel-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:14px;border-bottom:2px dashed rgba(45,42,30,0.10);}
+.cal-panel-date{font-size:20px;font-weight:900;color:var(--ink);}
+.cal-panel-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.cal-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid;}
+.cal-badge.season{background:rgba(91,155,213,0.1);color:var(--blue);border-color:rgba(91,155,213,0.3);}
+.cal-badge.holiday{background:rgba(255,140,66,0.1);color:var(--orange);border-color:rgba(255,140,66,0.3);}
+.cal-badge.illust-trend{background:rgba(155,126,200,0.1);color:var(--purple);border-color:rgba(155,126,200,0.3);}
+.cal-badge.today-badge{background:var(--orange);color:#fff;border-color:var(--orange);}
+.todo-section{margin-bottom:28px;}
+.odai-section{border-top:2px dashed rgba(45,42,30,0.10);padding-top:20px;}
+.todo-section-label{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;}
+.todo-input-row{display:flex;gap:8px;margin-bottom:12px;}
+.todo-input{flex:1;padding:10px 14px;border-radius:20px;border:2px solid var(--border);background:var(--bg);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:14px;font-weight:700;outline:none;transition:border-color 0.2s;}
+.todo-input:focus{border-color:var(--yellow2);}
+.todo-list{display:flex;flex-direction:column;gap:6px;}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:2px solid var(--border);border-radius:20px;transition:opacity 0.2s;}
+.todo-item.done{opacity:0.5;}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--muted);}
+.todo-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;transition:background 0.15s,border-color 0.15s;}
+.todo-check:hover{border-color:var(--orange);}
+.todo-item.done .todo-check{background:var(--orange);border-color:var(--orange);color:#fff;}
+.todo-text{flex:1;font-size:14px;font-weight:700;color:var(--ink);line-height:1.4;}
+.todo-del{color:var(--muted);cursor:pointer;font-size:16px;font-weight:900;padding:2px 4px;border-radius:8px;}
+.todo-del:hover{color:var(--orange);background:rgba(255,140,66,0.1);}
+.todo-empty{font-size:13px;font-weight:700;color:var(--muted);padding:4px 0;}
+.trend-today-banner{font-size:12px;font-weight:900;color:var(--orange);padding:8px 14px;border-radius:20px;background:rgba(255,140,66,0.1);border:2px solid rgba(255,140,66,0.3);margin-bottom:12px;display:inline-block;}
+.trend-auto-msg{font-size:13px;font-weight:700;color:var(--muted);padding:12px 0;display:flex;align-items:center;gap:8px;}
+.trend-auto-msg::before{content:'';width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+.trend-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px;}
+.trend-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:box-shadow 0.2s,transform 0.15s;}
+.trend-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.trend-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius) var(--radius) 0 0;}
+.trend-card.tc-1::before{background:var(--orange);}
+.trend-card.tc-2::before{background:var(--blue);}
+.trend-card.tc-3::before{background:var(--purple);}
+.trend-num{font-size:28px;font-weight:900;color:rgba(45,42,30,0.06);position:absolute;bottom:8px;right:12px;line-height:1;}
+.trend-category{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.trend-title{font-size:15px;font-weight:900;color:var(--ink);line-height:1.4;}
+.trend-desc{font-size:12px;color:var(--muted);line-height:1.7;}
+.trend-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.trend-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--white);color:var(--muted);border:1.5px solid var(--border);}
+.trend-event-card{display:flex;align-items:center;gap:14px;background:rgba(155,126,200,0.06);border:2px solid rgba(155,126,200,0.2);border-radius:var(--radius);padding:14px 18px;}
+.trend-event-emoji{font-size:32px;line-height:1;flex-shrink:0;}
+.trend-event-body{display:flex;flex-direction:column;gap:5px;}
+.trend-event-label{font-size:10px;font-weight:900;color:var(--purple);letter-spacing:0.1em;text-transform:uppercase;}
+.trend-event-title{font-size:16px;font-weight:900;color:var(--ink);}
+.trend-event-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.saved-list{display:flex;flex-direction:column;gap:8px;margin-top:24px;}
+.saved-item{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:12px;line-height:1.6;color:var(--ink);box-shadow:0 2px 8px rgba(45,42,30,0.05);}
+.saved-item .del{margin-left:auto;color:var(--muted);cursor:pointer;font-size:18px;font-weight:900;}
+.saved-item .del:hover{color:var(--orange);}
+@media(max-width:600px){.app{padding:0 16px 60px;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <a class="back-btn" href="index.html">← ホーム</a>
+    <div class="logo-wrap">
+      <div class="logo-icon">📅</div>
+      <div class="logo">VLC<span>reator</span></div>
+    </div>
+    <div class="page-title">📅 カレンダー</div>
+  </header>
+
+  <div class="api-bar">
+    <label>ANTHROPIC API KEY（お題AI生成用・任意）</label>
+    <input type="password" id="api-key" placeholder="sk-ant-… 入力するとAIでお題を生成できます" oninput="checkApiKey()" />
+    <span class="api-status" id="api-status">未入力</span>
+  </div>
+
+  <div class="cal-header">
+    <button class="cal-nav" onclick="calMove(-1)">‹</button>
+    <div class="cal-month-label" id="cal-month-label"></div>
+    <button class="cal-nav" onclick="calMove(1)">›</button>
+    <button class="cal-today-btn" onclick="calGoToday()">今日</button>
+  </div>
+
+  <div class="cal-weekdays">
+    <div class="cal-wd sun">日</div>
+    <div class="cal-wd">月</div>
+    <div class="cal-wd">火</div>
+    <div class="cal-wd">水</div>
+    <div class="cal-wd">木</div>
+    <div class="cal-wd">金</div>
+    <div class="cal-wd sat">土</div>
+  </div>
+
+  <div class="cal-grid" id="cal-grid"></div>
+
+  <div class="cal-panel" id="cal-panel" style="display:none;">
+    <div class="cal-panel-header">
+      <div class="cal-panel-date" id="cal-panel-date"></div>
+      <div class="cal-panel-badges" id="cal-panel-badges"></div>
+    </div>
+
+    <div class="todo-section">
+      <div class="todo-section-label">📝 TODO・メモ</div>
+      <div class="todo-input-row">
+        <input class="todo-input" id="todo-new-input" type="text" placeholder="制作メモ・やることを入力…" onkeydown="if(event.key==='Enter')addTodo()" />
+        <button class="btn primary" style="padding:8px 14px;font-size:13px;" onclick="addTodo()">追加</button>
+      </div>
+      <div class="todo-list" id="todo-list"></div>
+    </div>
+
+    <div class="odai-section">
+      <div class="todo-section-label">✨ 今日の絵師トレンドお題</div>
+      <div id="illust-trend-card" style="display:none;margin-bottom:16px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <button class="btn ai" id="btn-trend-gen" onclick="genTrend()" disabled>✨ AIでお題を生成</button>
+        <button class="btn" id="btn-trend-save" onclick="saveTrendIdea()" style="display:none;">🔖 保存</button>
+      </div>
+      <div class="ai-spinner" id="spinner-trend"><div class="spin"></div> AIがお題を考えています…</div>
+      <div id="trend-cards-wrap"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const HOLIDAYS = {
+  '1-1':'元日','1-7':'人日の節句','1-15':'小正月',
+  '2-3':'節分','2-11':'建国記念の日','2-14':'バレンタインデー',
+  '3-3':'ひな祭り','3-14':'ホワイトデー','3-20':'春分の日',
+  '4-1':'エイプリルフール','4-8':'花祭り','4-29':'昭和の日',
+  '5-3':'憲法記念日','5-4':'みどりの日','5-5':'こどもの日',
+  '6-21':'夏至','7-7':'七夕','7-15':'盂蘭盆',
+  '8-11':'山の日','8-15':'お盆','8-31':'夏の終わり',
+  '9-9':'重陽の節句','9-23':'秋分の日',
+  '10-31':'ハロウィン',
+  '11-3':'文化の日','11-15':'七五三','11-23':'勤労感謝の日',
+  '12-21':'冬至','12-24':'クリスマスイブ','12-25':'クリスマス','12-31':'大晦日',
+};
+const ILLUST_TRENDS = {
+  '1-1': {label:'お正月・描き初め',tags:['正月イラスト','着物','初日の出','年賀状イラスト','描き初め'],emoji:'🎍'},
+  '1-3': {label:'瞳の日（ひとみの日）',tags:['瞳の日','目だけでフォロワーを惚れさせる','オッドアイ','ひとみの日'],emoji:'👁️'},
+  '1-5': {label:'いちごの日',tags:['いちごの日','苺の日','苺','スイーツ'],emoji:'🍓'},
+  '1-6': {label:'色の日・ショートケーキの日',tags:['色の日','カラーの日','ショートケーキの日','ケーキの日'],emoji:'🎨'},
+  '1-7': {label:'七草の日',tags:['七草','春の七草','和風'],emoji:'🌿'},
+  '1-11':{label:'イラストレーションの日',tags:['イラストレーションの日','イラスト','創作'],emoji:'🖌️'},
+  '1-12':{label:'スキーの日',tags:['スキーの日','スキー','雪山','冬スポーツ'],emoji:'⛷️'},
+  '1-16':{label:'ヒーローの日',tags:['ヒーローの日','ヒーロー','正義','特撮'],emoji:'🦸'},
+  '1-22':{label:'カレーの日',tags:['カレーライスの日','カレー','食べ物','グルメ'],emoji:'🍛'},
+  '1-25':{label:'初音ミク誕生日',tags:['初音ミク','ミク','ボカロ','ツインテール'],emoji:'🎤'},
+  '1-27':{label:'求婚の日',tags:['求婚の日','プロポーズ','指輪','ロマンス'],emoji:'💍'},
+  '2-1': {label:'プリキュアの日',tags:['プリキュアの日','プリキュア','魔法少女','変身'],emoji:'✨'},
+  '2-2': {label:'ツインテールの日',tags:['ツインテールの日','ツインテール','二つ結び','ロングツインテール'],emoji:'💫'},
+  '2-3': {label:'節分・鬼の日',tags:['節分','鬼','豆まき','恵方巻','お多福'],emoji:'👹'},
+  '2-5': {label:'ふたごの日',tags:['ふたごの日','双子','そっくり','二人'],emoji:'👯'},
+  '2-8': {label:'ニーハイの日',tags:['ニーハイの日','ニーハイソックス','ニーハイ','ソックス'],emoji:'🧦'},
+  '2-9': {label:'肉の日',tags:['肉の日','焼肉','グルメ','食べ物イラスト'],emoji:'🥩'},
+  '2-10':{label:'ニットの日',tags:['ニットの日','ニット','セーター','冬服'],emoji:'🧶'},
+  '2-14':{label:'バレンタインデー',tags:['バレンタインデー','バレンタイン','チョコレート','告白','恋愛'],emoji:'🍫'},
+  '2-22':{label:'猫の日・忍者の日',tags:['猫の日','ねこ','猫耳','猫娘','猫キャラ','忍者の日','忍者'],emoji:'🐱'},
+  '3-3': {label:'ひな祭り・耳の日・うさぎの日',tags:['ひな祭り','耳の日','うさぎの日','着物','和風少女','うさ耳'],emoji:'🎎'},
+  '3-6': {label:'弟の日',tags:['弟の日','弟キャラ','兄弟','弟'],emoji:'👦'},
+  '3-9': {label:'ミクの日・ザクの日',tags:['ミクの日','初音ミク','ザクの日','ガンダム','ボカロ'],emoji:'🎵'},
+  '3-10':{label:'マリオの日',tags:['マリオの日','スーパーマリオ','ゲームキャラ'],emoji:'🍄'},
+  '3-14':{label:'ホワイトデー・銀髪白髪を愛でる日',tags:['ホワイトデー','ホワイトデーは銀髪白髪を愛でる日','銀髪','白髪','白系キャラ'],emoji:'🍬'},
+  '3-21':{label:'ランドセルの日',tags:['ランドセルの日','小学生','ランドセル','制服'],emoji:'🎒'},
+  '3-27':{label:'さくらの日',tags:['さくらの日','桜','春','花見','和服','ソメイヨシノ'],emoji:'🌸'},
+  '4-1': {label:'エイプリルフール',tags:['エイプリルフール','嘘','仮装','変装','コメディ'],emoji:'🃏'},
+  '4-6': {label:'白の日',tags:['白の日','白系','白ワンピ','白い服'],emoji:'🤍'},
+  '4-10':{label:'ショートカットの日',tags:['ショートカットの日','ショートヘア','ショート髪','ベリショ'],emoji:'✂️'},
+  '4-14':{label:'オレンジデー',tags:['オレンジデー','オレンジ色','カップル','甘酸っぱい恋'],emoji:'🍊'},
+  '4-23':{label:'瞳の日',tags:['瞳の日','目','オッドアイ','瞳の色','ファンタジー'],emoji:'👁️'},
+  '4-25':{label:'世界ペンギンの日',tags:['ペンギン','世界ペンギンの日','動物','もふもふ'],emoji:'🐧'},
+  '5-5': {label:'こどもの日・端午の節句',tags:['こどもの日','鯉のぼり','兜','端午の節句','和風'],emoji:'🎏'},
+  '5-9': {label:'アイスクリームの日',tags:['アイスクリームの日','アイス','夏','スイーツ'],emoji:'🍦'},
+  '5-10':{label:'メイドの日',tags:['メイドの日','メイド服','メイドカフェ','給仕','エプロン'],emoji:'🫖'},
+  '5-12':{label:'看護師の日',tags:['看護師の日','ナース服','白衣','ナース','天使'],emoji:'🏥'},
+  '5-15':{label:'ストッキングの日',tags:['ストッキングの日','ストッキング','脚','タイツ'],emoji:'🦵'},
+  '5-23':{label:'キスの日',tags:['キスの日','キス','恋愛','カップル','ラブラブ'],emoji:'💋'},
+  '6-1': {label:'衣替えの日',tags:['衣替えの日','夏服','制服','セーラー服','衣替え'],emoji:'👔'},
+  '6-6': {label:'むちむちの日・兄の日',tags:['むちむちの日','兄の日','兄キャラ','むちむち'],emoji:'💪'},
+  '6-11':{label:'傘の日',tags:['傘の日','傘','雨','梅雨','雨の日の少女'],emoji:'☂️'},
+  '6-12':{label:'恋人の日',tags:['恋人の日','カップル','恋愛','ロマンス'],emoji:'💑'},
+  '6-13':{label:'小悪魔の日',tags:['小悪魔','デビル','ホーン','魅惑的','悪魔娘'],emoji:'😈'},
+  '6-25':{label:'百合の日',tags:['百合の日','百合','女の子同士','GL','ガールズラブ'],emoji:'🌸'},
+  '6-26':{label:'雷記念日',tags:['雷記念日','雷','雷属性','エレキ','嵐'],emoji:'⚡'},
+  '6-28':{label:'パフェの日',tags:['パフェの日','パフェ','スイーツ','カフェ','グルメ'],emoji:'🍧'},
+  '7-3': {label:'涙の日',tags:['涙の日','泣き顔','感動','涙','泣き美人'],emoji:'😢'},
+  '7-5': {label:'ビキニスタイルの日',tags:['ビキニスタイルの日','水着','ビキニ','海','夏'],emoji:'👙'},
+  '7-7': {label:'七夕・ゆかたの日・ポニーテールの日',tags:['七夕','天の川','浴衣','ポニーテールの日','ポニーテール','短冊'],emoji:'⭐'},
+  '7-8': {label:'ガンダムの日',tags:['ガンダムの日','ガンダム','ロボット','モビルスーツ'],emoji:'🤖'},
+  '7-9': {label:'ノーブラの日',tags:['ノーブラの日','透け感','夏服','薄着'],emoji:'👗'},
+  '7-14':{label:'ひまわりの日',tags:['ひまわりの日','ひまわり','向日葵','夏','花'],emoji:'🌻'},
+  '7-16':{label:'虹の日',tags:['虹の日','虹','レインボー','七色','空'],emoji:'🌈'},
+  '7-20':{label:'Tシャツの日・夏本番',tags:['Tシャツの日','夏祭り','浴衣','花火','かき氷'],emoji:'👕'},
+  '8-1': {label:'水の日',tags:['水の日','水','泳ぐ','透明感','夏'],emoji:'💧'},
+  '8-2': {label:'バニーの日・パンツの日',tags:['バニーの日','バニーガール','うさ耳','パンツの日','バニースーツ'],emoji:'🐰'},
+  '8-3': {label:'ハチミツの日',tags:['ハチミツの日','ハチミツ','みつばち','甘い','黄色'],emoji:'🍯'},
+  '8-4': {label:'浴衣の日',tags:['浴衣の日','浴衣','夏祭り','花火','和服'],emoji:'👘'},
+  '8-7': {label:'花の日',tags:['花の日','花','花畑','お花','フラワー'],emoji:'🌺'},
+  '8-9': {label:'ハグの日',tags:['ハグの日','ハグ','抱擁','ぎゅっと','カップル'],emoji:'🤗'},
+  '8-10':{label:'ハートの日',tags:['ハートの日','ハート','愛','ラブ','♥'],emoji:'❤️'},
+  '8-15':{label:'終戦記念日',tags:['平和','祈り','白','しんみり','鎮魂'],emoji:'🕊️'},
+  '8-20':{label:'バニ男の日',tags:['バニ男の日','バニーボーイ','男の娘','うさ耳'],emoji:'🐇'},
+  '8-21':{label:'バニーの日・女子大生の日',tags:['バニーの日','バニーガール','うさ耳','女子大生の日','女子大生'],emoji:'🐰'},
+  '8-23':{label:'バニーさんの日',tags:['バニーさんの日','バニーガール','うさ耳','バニーコス'],emoji:'🐇'},
+  '8-31':{label:'夏の終わり',tags:['夏の終わり','向日葵','セミ','夕焼け','夏惜しむ','8月31日'],emoji:'🌻'},
+  '9-6': {label:'黒の日・妹の日',tags:['黒の日','黒','黒系コーデ','妹の日','妹キャラ','妹'],emoji:'🖤'},
+  '9-9': {label:'重陽の節句・菊の日',tags:['重陽の節句','菊','和風','長寿','秋の花'],emoji:'🌼'},
+  '9-12':{label:'宇宙の日',tags:['宇宙の日','宇宙','星空','SF','銀河'],emoji:'🚀'},
+  '9-13':{label:'プログラマーの日',tags:['プログラマーの日','プログラマー','コード','サイバー','眼鏡'],emoji:'💾'},
+  '9-20':{label:'空の日',tags:['空の日','空','雲','青空','飛行機'],emoji:'✈️'},
+  '9-22':{label:'秋分・紅葉はじまり',tags:['紅葉','秋','もみじ','秋の空','秋色'],emoji:'🍂'},
+  '10-1':{label:'メガネの日',tags:['メガネの日','眼鏡の日','眼鏡','メガネっ子','メガネキャラ'],emoji:'👓'},
+  '10-4':{label:'天使の日',tags:['天使の日','天使','エンジェル','羽','ハロ','聖女'],emoji:'😇'},
+  '10-10':{label:'目の愛護デー',tags:['目の愛護デー','瞳','ウィンク','目力','アイ'],emoji:'👁️'},
+  '10-11':{label:'ウィンクの日',tags:['ウィンクの日','ウィンク','片目つぶり','ウィンク顔'],emoji:'😉'},
+  '10-15':{label:'きのこの日',tags:['きのこの日','きのこ','森の妖精','秋の森','ファンタジー'],emoji:'🍄'},
+  '10-18':{label:'ミニスカートの日',tags:['ミニスカートの日','ミニスカ','制服','スカート','太もも'],emoji:'👗'},
+  '10-30':{label:'初恋の日',tags:['初恋の日','初恋','青春','ときめき','淡い恋'],emoji:'💘'},
+  '10-31':{label:'ハロウィンイラスト',tags:['ハロウィン','魔女','コスプレ','かぼちゃ','お化け','仮装'],emoji:'🎃'},
+  '11-1':{label:'犬の日',tags:['犬の日','犬耳','獣人','もふもふ','ドッグガール','わんこ'],emoji:'🐶'},
+  '11-2':{label:'タイツの日',tags:['タイツの日','タイツ','黒タイツ','脚','ニーハイ'],emoji:'🖤'},
+  '11-4':{label:'いい推しの日',tags:['いい推しの日','推し','推しキャラ','推し活','ファンアート'],emoji:'💜'},
+  '11-7':{label:'いいおなかの日',tags:['いいおなかの日','へそ出し','腹筋','ミドリフ','おなか'],emoji:'✨'},
+  '11-11':{label:'ポッキーの日',tags:['ポッキーの日','ポッキー','お菓子','シェア','甘い','チョコ'],emoji:'🍫'},
+  '11-15':{label:'七五三イラスト',tags:['七五三','着物','子ども','千歳飴','和装'],emoji:'🎋'},
+  '11-22':{label:'いい夫婦の日・いいツインテールの日',tags:['いい夫婦の日','いいツインテールの日','ツインテール','カップル','夫婦'],emoji:'💑'},
+  '11-28':{label:'いいニーハイの日',tags:['いいニーハイの日','ニーハイ','ニーハイソックス','太もも','脚'],emoji:'🦵'},
+  '11-29':{label:'いい肉の日・いい肉球の日',tags:['いい肉の日','いい肉球の日','肉球','ねこ','もふもふ'],emoji:'🐾'},
+  '12-6':{label:'姉の日',tags:['姉の日','姉キャラ','お姉さん','姉妹','姉'],emoji:'👩'},
+  '12-21':{label:'遠距離恋愛の日・冬至',tags:['遠距離恋愛の日','冬至','遠距離','切ない','冬の夜'],emoji:'🌙'},
+  '12-24':{label:'クリスマスイブ',tags:['クリスマスイブ','クリスマス','サンタ','夜景','雪','プレゼント'],emoji:'🎄'},
+  '12-25':{label:'クリスマスイラスト',tags:['クリスマス','天使','サンタ','冬','星','ツリー'],emoji:'⭐'},
+  '12-31':{label:'大晦日・年越し',tags:['大晦日','除夜の鐘','年越しそば','雪景色','新年','年末'],emoji:'🎉'},
+};
+const SEASONS = ['冬','冬','春','春','春','初夏','夏','夏','夏','秋','秋','秋','冬'];
+const WEEKDAYS = ['日','月','火','水','木','金','土'];
+
+let calYear, calMonth, selectedDate = null;
+let trendCache = {};
+let todoData = JSON.parse(localStorage.getItem('illusio_todos') || '{}');
+let savedIdeas = JSON.parse(localStorage.getItem('illusio_saved') || '[]');
+let lastTrendSaveText = '';
+
+function getKey() { return document.getElementById('api-key').value.trim(); }
+function checkApiKey() {
+  const k = getKey();
+  const ok = k.startsWith('sk-ant-') || k.startsWith('sk-');
+  document.getElementById('api-status').textContent = ok ? '設定済み' : '未入力';
+  document.getElementById('api-status').className = 'api-status' + (ok ? ' ok' : '');
+  const btn = document.getElementById('btn-trend-gen');
+  if (btn) btn.disabled = !ok;
+  if (ok) autoGenTodayTrend();
+}
+
+function saveTodos() { localStorage.setItem('illusio_todos', JSON.stringify(todoData)); }
+function getDateKey(y, m, d) { return `${y}-${m}-${d}`; }
+function getHoliday(m, d) { return HOLIDAYS[`${m}-${d}`] || null; }
+function getIllustTrend(m, d) { return ILLUST_TRENDS[`${m}-${d}`] || null; }
+function getSeason(m) { return SEASONS[m]; }
+
+function addTodo() {
+  const input = document.getElementById('todo-new-input');
+  const text = input.value.trim();
+  if (!text || !selectedDate) return;
+  if (!todoData[selectedDate]) todoData[selectedDate] = [];
+  todoData[selectedDate].push({ id: Date.now(), text, done: false });
+  saveTodos(); input.value = '';
+  renderTodoList(); renderCalendar();
+}
+function toggleTodo(dateKey, id) {
+  const item = (todoData[dateKey] || []).find(x => x.id === id);
+  if (item) { item.done = !item.done; saveTodos(); renderTodoList(); renderCalendar(); }
+}
+function deleteTodo(dateKey, id) {
+  if (!todoData[dateKey]) return;
+  todoData[dateKey] = todoData[dateKey].filter(x => x.id !== id);
+  if (!todoData[dateKey].length) delete todoData[dateKey];
+  saveTodos(); renderTodoList(); renderCalendar();
+}
+function renderTodoList() {
+  const list = document.getElementById('todo-list');
+  const items = todoData[selectedDate] || [];
+  if (!items.length) { list.innerHTML = '<div class="todo-empty">メモ・TODOはありません</div>'; return; }
+  list.innerHTML = items.map(item => `
+    <div class="todo-item${item.done ? ' done' : ''}">
+      <div class="todo-check" onclick="toggleTodo('${selectedDate}',${item.id})">${item.done ? '✓' : ''}</div>
+      <div class="todo-text">${item.text.replace(/</g,'&lt;')}</div>
+      <div class="todo-del" onclick="deleteTodo('${selectedDate}',${item.id})">×</div>
+    </div>`).join('');
+}
+
+function initCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth() + 1;
+  renderCalendar();
+  selectDay(calYear, calMonth, now.getDate());
+  if (getKey()) autoGenTodayTrend();
+}
+function calMove(dir) {
+  calMonth += dir;
+  if (calMonth > 12) { calMonth = 1; calYear++; }
+  if (calMonth < 1)  { calMonth = 12; calYear--; }
+  renderCalendar();
+}
+function calGoToday() {
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth() + 1;
+  renderCalendar(); selectDay(calYear, calMonth, now.getDate());
+}
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = `${calYear}年 ${calMonth}月`;
+  const grid = document.getElementById('cal-grid');
+  const now = new Date();
+  const firstDay = new Date(calYear, calMonth - 1, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+  const daysInPrev  = new Date(calYear, calMonth - 1, 0).getDate();
+  const total = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  let cells = '';
+
+  for (let i = 0; i < total; i++) {
+    let y = calYear, m = calMonth, d, cls = 'cal-cell';
+    const dow = i % 7;
+    if (i < firstDay) {
+      d = daysInPrev - firstDay + i + 1; m = calMonth - 1;
+      if (m < 1) { m = 12; y = calYear - 1; } cls += ' other-month';
+    } else if (i >= firstDay + daysInMonth) {
+      d = i - firstDay - daysInMonth + 1; m = calMonth + 1;
+      if (m > 12) { m = 1; y = calYear + 1; } cls += ' other-month';
+    } else { d = i - firstDay + 1; }
+
+    if (dow === 0) cls += ' sun';
+    if (dow === 6) cls += ' sat';
+    const isToday = (y === now.getFullYear() && m === (now.getMonth()+1) && d === now.getDate());
+    if (isToday) cls += ' today';
+    const key = getDateKey(y, m, d);
+    if (selectedDate === key) cls += ' selected';
+
+    const holiday = getHoliday(m, d);
+    const trend   = getIllustTrend(m, d);
+    const todos   = todoData[key] || [];
+    const hasTodo = todos.length > 0;
+    const hasOdai = !!trendCache[key];
+    const allDone = hasTodo && todos.every(x => x.done);
+
+    let inner = `<div class="cal-day">${d}</div>`;
+
+    // 祝日ラベル（アイコンなし・テキストのみ・赤）
+    if (holiday) {
+      inner += `<div class="cal-event-row is-holiday">
+        <span class="cal-event-label">${holiday}</span>
+      </div>`;
+    }
+
+    // 絵師トレンド（アイコン＋テキスト・紫）
+    if (trend) {
+      inner += `<div class="cal-event-row is-trend">
+        <span class="cal-event-emoji">${trend.emoji}</span>
+        <span class="cal-event-label">${trend.label}</span>
+      </div>`;
+    }
+
+    // TODO ミニ表示
+    if (hasTodo) {
+      const undone = todos.filter(x => !x.done);
+      const text = allDone
+        ? `✓ 完了${todos.length}件`
+        : undone[0].text.slice(0, 10) + (undone[0].text.length > 10 ? '…' : '');
+      inner += `<div class="cal-mini-todo${allDone ? ' all-done' : ''}">${text}</div>`;
+    }
+
+    // ドット（AI生成お題）
+    const dots = [
+      hasTodo ? `<span class="cal-dot todo${allDone ? ' done' : ''}"></span>` : '',
+      hasOdai ? `<span class="cal-dot odai"></span>` : '',
+    ].join('');
+    if (dots) inner += `<div class="cal-dots">${dots}</div>`;
+
+    cells += `<div class="${cls}" onclick="selectDay(${y},${m},${d})">${inner}</div>`;
+  }
+  grid.innerHTML = cells;
+}
+function selectDay(y, m, d) {
+  selectedDate = getDateKey(y, m, d);
+  renderCalendar();
+  const panel = document.getElementById('cal-panel');
+  panel.style.display = 'block';
+  const now = new Date();
+  const isToday = (y === now.getFullYear() && m === (now.getMonth()+1) && d === now.getDate());
+  const weekday = WEEKDAYS[new Date(y, m - 1, d).getDay()];
+  document.getElementById('cal-panel-date').innerHTML = `${y}年${m}月${d}日（${weekday}）${isToday?'<span class="cal-badge today-badge">TODAY</span>':''}`;
+  const holiday = getHoliday(m, d), trend = getIllustTrend(m, d), season = getSeason(m);
+  let badges = `<span class="cal-badge season">${season}</span>`;
+  if (holiday) badges += `<span class="cal-badge holiday">${holiday}</span>`;
+  if (trend)   badges += `<span class="cal-badge illust-trend">${trend.emoji} ${trend.label}</span>`;
+  document.getElementById('cal-panel-badges').innerHTML = badges;
+  const trendCardEl = document.getElementById('illust-trend-card');
+  if (trend) {
+    trendCardEl.style.display = '';
+    trendCardEl.innerHTML = `<div class="trend-event-card"><div class="trend-event-emoji">${trend.emoji}</div><div class="trend-event-body"><div class="trend-event-label">📅 今日の絵師トレンド</div><div class="trend-event-title">${trend.label}</div><div class="trend-event-tags">${trend.tags.map(t=>`<span class="trend-tag">#${t}</span>`).join('')}</div></div></div>`;
+  } else { trendCardEl.style.display = 'none'; }
+  const genBtn = document.getElementById('btn-trend-gen');
+  if (genBtn) genBtn.disabled = !getKey();
+  const saveBtn = document.getElementById('btn-trend-save');
+  if (saveBtn) saveBtn.style.display = 'none';
+  renderTodoList();
+  const input = document.getElementById('todo-new-input');
+  if (input) input.focus();
+  const wrap = document.getElementById('trend-cards-wrap');
+  if (trendCache[selectedDate]) {
+    renderTrendCards(trendCache[selectedDate], isToday);
+    if (saveBtn) saveBtn.style.display = '';
+  } else if (isToday && getKey()) {
+    wrap.innerHTML = `<div class="trend-auto-msg">✨ 今日のトレンドお題を生成中…</div>`;
+  } else {
+    wrap.innerHTML = `<div class="empty-msg">「✨ AIでお題を生成」でこの日のイラストお題を作成できます。</div>`;
+    document.getElementById('spinner-trend').classList.remove('visible');
+  }
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function renderTrendCards(odaiList, isToday = false) {
+  const cc = ['tc-1','tc-2','tc-3'];
+  const banner = isToday ? `<div class="trend-today-banner">📅 今日のトレンドお題</div>` : '';
+  document.getElementById('trend-cards-wrap').innerHTML = banner + `<div class="trend-card-grid">` +
+    odaiList.map((o,i) => `<div class="trend-card ${cc[i%3]}"><div class="trend-category">${o.category}</div><div class="trend-title">${o.title}</div><div class="trend-desc">${o.desc}</div><div class="trend-tags">${(o.tags||[]).map(t=>`<span class="trend-tag">${t}</span>`).join('')}</div><div class="trend-num">0${i+1}</div></div>`).join('') + `</div>`;
+}
+function saveTrendIdea() {
+  if (!lastTrendSaveText) return;
+  savedIdeas.unshift({ id: Date.now(), text: lastTrendSaveText });
+  localStorage.setItem('illusio_saved', JSON.stringify(savedIdeas));
+  alert('保存しました！');
+}
+async function autoGenTodayTrend() {
+  const now = new Date();
+  const todayKey = getDateKey(now.getFullYear(), now.getMonth()+1, now.getDate());
+  if (trendCache[todayKey] || !getKey()) return;
+  const prev = selectedDate; selectedDate = todayKey;
+  await genTrend();
+  if (prev && prev !== todayKey) { const [y,m,d] = prev.split('-').map(Number); selectDay(y,m,d); }
+}
+async function genTrend() {
+  if (!selectedDate) return;
+  const [y,m,d] = selectedDate.split('-').map(Number);
+  const weekday = WEEKDAYS[new Date(y,m-1,d).getDay()];
+  const holiday = getHoliday(m,d), season = getSeason(m);
+  const spinner = document.getElementById('spinner-trend');
+  const wrap = document.getElementById('trend-cards-wrap');
+  const saveBtn = document.getElementById('btn-trend-save');
+  spinner.classList.add('visible'); wrap.innerHTML = '';
+  if (saveBtn) saveBtn.style.display = 'none';
+  const holidayStr = holiday ? `この日は「${holiday}」です。` : '';
+  const prompt = `${y}年${m}月${d}日（${weekday}）、季節は${season}です。${holidayStr}\nこの日付・曜日・季節・行事などから着想を得た、絵師向けのイラストお題を3つ提案してください。\n必ず以下のJSON形式のみで返答してください（説明文・マークダウン記号不要）:\n{"odai":[{"category":"カテゴリ名","title":"お題タイトル（20字以内）","desc":"情景描写（60字以内）","tags":["タグ1","タグ2","タグ3"]},{"category":"...","title":"...","desc":"...","tags":["..."]},{"category":"...","title":"...","desc":"...","tags":["..."]}]}`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:'絵師のアイデア出しを支援するアシスタントです。必ず指定のJSON形式のみで返答してください。', messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.map(c=>c.text||'').join('').trim();
+    const parsed = JSON.parse(raw.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());
+    trendCache[selectedDate] = parsed.odai;
+    const isToday = selectedDate === getDateKey(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+    renderTrendCards(parsed.odai, isToday);
+    renderCalendar();
+    lastTrendSaveText = `【${y}年${m}月${d}日 お題】` + parsed.odai.map(o=>o.title).join(' / ');
+    if (saveBtn) saveBtn.style.display = '';
+  } catch(e) { wrap.innerHTML = `<div class="empty-msg">エラー: ${e.message}</div>`; }
+  finally { spinner.classList.remove('visible'); }
+}
+
+initCalendar();
+</script>
+</body>
+</html>

@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お題ルーレット — VLCreator</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFFBE8;--bg2:#FFF5C8;--yellow:#FFD94A;--yellow2:#FFC107;--orange:#FF8C42;--green:#4CAF7D;--blue:#5B9BD5;--purple:#9B7EC8;--ink:#2D2A1E;--muted:#8C8470;--border:rgba(45,42,30,0.12);--white:#FFFFFF;--card-bg:#FFFFFF;--radius:16px;--radius-sm:10px;--shadow:0 4px 20px rgba(45,42,30,0.08);--shadow-lg:0 8px 32px rgba(45,42,30,0.12);--accent:var(--orange);--accent2:var(--blue);--accent3:var(--purple);--paper:var(--bg);--paper2:var(--bg2);--gold:var(--yellow2);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle 500px at 100% 0%,rgba(255,217,74,0.20) 0%,transparent 60%),radial-gradient(circle 400px at 0% 100%,rgba(255,140,66,0.10) 0%,transparent 60%);}
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+header{padding:20px 0 20px;display:flex;align-items:center;gap:12px;margin-bottom:28px;border-bottom:3px solid var(--yellow);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);transition:background 0.15s,color 0.15s;}
+.back-btn:hover{background:var(--yellow);border-color:var(--yellow2);color:var(--ink);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 0 var(--yellow2);}
+.logo{font-size:26px;font-weight:900;color:var(--ink);}
+.logo span{color:var(--orange);}
+.page-title{font-size:13px;font-weight:700;color:var(--muted);margin-left:auto;background:var(--bg2);padding:5px 14px;border-radius:20px;border:2px solid var(--border);}
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:none;margin-bottom:28px;overflow-x:auto;gap:6px;padding-bottom:4px;}
+.tab{padding:8px 18px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-radius:20px;white-space:nowrap;background:var(--white);border:2px solid var(--border);transition:background 0.15s,color 0.15s,border-color 0.15s;font-family:'Zen Maru Gothic',sans-serif;box-shadow:0 2px 0 var(--border);}
+.tab:hover{background:var(--bg2);color:var(--ink);}
+.tab.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow2);box-shadow:0 3px 0 var(--yellow2);}
+/* Section */
+.section{display:none;}
+.section.active{display:block;animation:fadeUp 0.25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.sec-header{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;}
+.sec-h{font-size:22px;font-weight:900;color:var(--ink);}
+.sec-sub{font-size:13px;color:var(--muted);}
+/* Cards */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:24px;}
+.idea-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:16px;min-height:110px;display:flex;flex-direction:column;gap:8px;position:relative;transition:box-shadow 0.2s,transform 0.15s;box-shadow:0 2px 8px rgba(45,42,30,0.05);}
+.idea-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.idea-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius) var(--radius) 0 0;}
+.acc-red::before{background:var(--orange);}
+.acc-teal::before{background:var(--blue);}
+.acc-purple::before{background:var(--purple);}
+.acc-gold::before{background:var(--yellow2);}
+.acc-ink::before{background:var(--ink);}
+.card-label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
+.card-value{font-size:15px;font-weight:900;color:var(--ink);flex:1;line-height:1.4;}
+.card-sub{font-size:11px;color:var(--muted);}
+/* Selectable */
+.idea-card.selectable{cursor:pointer;padding-bottom:28px;}
+.idea-card.selectable:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--yellow);}
+.idea-card.selectable.picked{box-shadow:0 0 0 3px var(--orange);border-color:var(--orange);}
+.pick-hint{font-size:9px;color:var(--muted);font-weight:400;margin-left:4px;text-transform:none;letter-spacing:0;}
+.pick-icon{position:absolute;bottom:8px;right:10px;font-size:12px;color:var(--muted);}
+/* Buttons */
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.btn{padding:9px 18px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.15s,transform 0.1s,box-shadow 0.15s;box-shadow:0 2px 0 var(--border);}
+.btn:hover{background:var(--bg2);transform:translateY(-1px);}
+.btn:active{transform:translateY(1px);box-shadow:none;}
+.btn.primary{background:var(--orange);color:#fff;border-color:var(--orange);box-shadow:0 3px 0 rgba(180,80,20,0.4);}
+.btn.primary:hover{background:#e87830;border-color:#e87830;}
+/* Prompt */
+.prompt-wrap{margin-bottom:24px;}
+.prompt-label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+.prompt-box{background:var(--white);border:2px solid var(--yellow);border-radius:var(--radius);padding:16px 20px;font-size:16px;font-weight:700;color:var(--ink);line-height:1.8;min-height:60px;box-shadow:var(--shadow);}
+/* Cat toggle */
+.cat-toggle-wrap{margin-bottom:20px;}
+.cat-toggle-label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.cat-toggles{display:flex;flex-wrap:wrap;gap:8px;}
+.cat-toggle{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;color:var(--muted);transition:all 0.15s;user-select:none;box-shadow:0 2px 0 var(--border);}
+.cat-toggle:hover{border-color:var(--yellow);color:var(--ink);}
+.cat-toggle.on{border-color:var(--orange);color:var(--orange);background:rgba(255,140,66,0.08);box-shadow:0 2px 0 rgba(180,80,20,0.2);}
+.cat-toggle .check{width:14px;height:14px;border-radius:4px;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
+.cat-toggle.on .check::after{content:'✓';}
+.cat-toggle-divider{height:2px;background:rgba(45,42,30,0.08);border-radius:2px;margin:16px 0;}
+/* Picker */
+.picker-overlay{display:none;position:fixed;inset:0;background:rgba(45,42,30,0.4);z-index:100;backdrop-filter:blur(4px);}
+.picker-overlay.open{display:block;}
+.picker-drawer{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:3px solid var(--yellow);border-radius:24px 24px 0 0;z-index:101;max-height:70vh;flex-direction:column;box-shadow:0 -8px 40px rgba(45,42,30,0.15);}
+.picker-drawer.open{display:flex;animation:slideUp 0.22s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.picker-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:2px dashed rgba(45,42,30,0.10);gap:12px;flex-shrink:0;}
+.picker-title{font-size:15px;font-weight:900;color:var(--ink);white-space:nowrap;}
+.picker-search{flex:1;padding:8px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;color:var(--ink);outline:none;min-width:0;}
+.picker-search:focus{border-color:var(--yellow2);}
+.picker-close{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--white);color:var(--muted);font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.picker-close:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.picker-list{overflow-y:auto;padding:8px 12px 24px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;}
+.picker-item{padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:background 0.12s;white-space:nowrap;box-shadow:0 2px 0 var(--border);}
+.picker-item:hover{background:var(--bg2);border-color:var(--yellow);}
+.picker-item.selected{background:var(--orange);color:#fff;border-color:var(--orange);box-shadow:0 2px 0 rgba(180,80,20,0.3);}
+.picker-group-label{width:100%;font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;padding:8px 4px 4px;border-bottom:2px dashed rgba(45,42,30,0.10);margin-bottom:2px;}
+.picker-color-item{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 10px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:background 0.12s;white-space:nowrap;}
+.picker-color-item:hover{background:var(--bg2);}
+.picker-color-item.selected{border-color:var(--orange);background:rgba(255,140,66,0.08);}
+.picker-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.1);}
+/* Pose */
+.pose-cat{margin-bottom:28px;}
+.pose-cat-title{font-size:11px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.pose-cat-title::after{content:'';flex:1;height:2px;background:rgba(45,42,30,0.08);border-radius:2px;}
+/* Color */
+.palette{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform 0.15s,border-color 0.15s;position:relative;}
+.swatch:hover{transform:scale(1.18);}
+.swatch.selected{border-color:var(--ink);box-shadow:0 0 0 2px var(--yellow);}
+.swatch .sw-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--yellow);font-size:10px;font-weight:700;white-space:nowrap;padding:4px 10px;border-radius:10px;pointer-events:none;}
+.swatch:hover .sw-tip{display:block;}
+.color-preview{display:flex;gap:12px;align-items:stretch;margin-bottom:20px;}
+.cp-block{flex:1;border-radius:var(--radius);height:80px;border:2px solid var(--border);display:flex;align-items:flex-end;padding:8px 10px;font-size:11px;font-weight:900;}
+/* Odai */
+.text-input{width:100%;padding:11px 16px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:14px;font-weight:700;outline:none;transition:border-color 0.2s;margin-bottom:12px;}
+.text-input:focus{border-color:var(--yellow2);}
+.text-input::placeholder{color:var(--muted);}
+/* Mode bar */
+.odai-mode-bar{display:flex;gap:6px;margin-bottom:20px;width:fit-content;}
+.odai-mode-btn{padding:8px 18px;font-size:13px;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;color:var(--muted);background:var(--white);border:2px solid var(--border);border-radius:20px;cursor:pointer;transition:background 0.15s,color 0.15s;box-shadow:0 2px 0 var(--border);}
+.odai-mode-btn:hover{background:var(--bg2);color:var(--ink);}
+.odai-mode-btn.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow2);box-shadow:0 3px 0 var(--yellow2);}
+/* Tags */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+.tag{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;background:var(--white);color:var(--ink);border:2px solid var(--border);cursor:pointer;transition:background 0.15s,color 0.15s;box-shadow:0 2px 0 var(--border);}
+.tag:hover{background:var(--yellow);border-color:var(--yellow2);}
+/* Saved */
+.saved-list{display:flex;flex-direction:column;gap:8px;margin-top:24px;}
+.saved-item{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:12px;line-height:1.6;color:var(--ink);box-shadow:0 2px 8px rgba(45,42,30,0.05);}
+.saved-item .del{margin-left:auto;color:var(--muted);cursor:pointer;font-size:18px;font-weight:900;}
+.saved-item .del:hover{color:var(--orange);}
+.empty-msg{color:var(--muted);font-size:13px;font-weight:700;padding:20px 0;}
+/* Checklist */
+.odai-checklist-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;}
+.odai-search{flex:1;min-width:160px;padding:8px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;color:var(--ink);outline:none;}
+.odai-search:focus{border-color:var(--yellow2);}
+.odai-check-count{font-size:12px;font-weight:900;color:var(--orange);white-space:nowrap;min-width:80px;}
+.odai-checklist{display:flex;flex-direction:column;gap:2px;max-height:400px;overflow-y:auto;border:2px solid var(--border);border-radius:var(--radius);background:var(--white);padding:6px;margin-bottom:16px;}
+.odai-check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:background 0.12s;user-select:none;}
+.odai-check-item:hover{background:var(--bg2);}
+.odai-check-item.checked{background:rgba(255,140,66,0.08);}
+.odai-checkbox{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:background 0.15s,border-color 0.15s;}
+.odai-check-item.checked .odai-checkbox{background:var(--orange);border-color:var(--orange);color:#fff;}
+.odai-check-label{font-size:13px;font-weight:700;color:var(--ink);line-height:1.5;}
+/* Cat checklist */
+.cat-checklist-wrap{margin-bottom:12px;}
+.cat-checklist-group{margin-bottom:16px;}
+.cat-checklist-group-label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;padding:6px 4px 4px;border-bottom:2px dashed rgba(45,42,30,0.10);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.cat-checklist-group-label button{font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;}
+.cat-checklist-group-label button:hover{background:var(--yellow);border-color:var(--yellow2);color:var(--ink);}
+.cat-checklist-items{display:flex;flex-wrap:wrap;gap:6px;}
+.cat-chip{padding:6px 12px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:background 0.12s,border-color 0.12s,color 0.12s;user-select:none;box-shadow:0 1px 0 var(--border);}
+.cat-chip:hover{background:var(--bg2);border-color:var(--yellow);}
+.cat-chip.checked{background:var(--orange);color:#fff;border-color:var(--orange);box-shadow:0 2px 0 rgba(180,80,20,0.3);}
+.cat-color-chip{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 8px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:background 0.12s;user-select:none;}
+.cat-color-chip:hover{background:var(--bg2);}
+.cat-color-chip.checked{border-color:var(--orange);background:rgba(255,140,66,0.08);}
+.cat-color-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.12);}
+/* Draw bar */
+.odai-draw-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:var(--bg2);border-radius:var(--radius);border:2px solid var(--yellow);margin-top:4px;}
+.cat-check-count{font-size:12px;font-weight:900;color:var(--orange);}
+/* Custom add */
+.custom-add-section{margin-top:28px;padding-top:20px;border-top:2px dashed rgba(45,42,30,0.10);}
+.custom-add-title{font-size:11px;font-weight:900;color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.custom-add-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.custom-input{flex:1;min-width:180px;padding:9px 14px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;outline:none;transition:border-color 0.2s;}
+.custom-input:focus{border-color:var(--yellow2);}
+.custom-input::placeholder{color:var(--muted);}
+.custom-select{padding:9px 12px;border-radius:20px;border:2px solid var(--border);background:var(--white);color:var(--ink);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;outline:none;cursor:pointer;}
+.custom-list{display:flex;flex-wrap:wrap;gap:6px;min-height:0;}
+.custom-chip{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 14px;border-radius:20px;border:2px solid var(--orange);background:rgba(255,140,66,0.08);font-size:13px;font-weight:700;color:var(--orange);animation:fadeUp 0.2s ease;}
+.custom-chip-del{cursor:pointer;color:var(--orange);font-size:14px;font-weight:900;line-height:1;opacity:0.6;padding:0 2px;transition:opacity 0.15s;}
+.custom-chip-del:hover{opacity:1;}
+.person-btn {
+  padding: 8px 18px; border-radius: 20px; border: 2px solid var(--border);
+  background: var(--white); color: var(--muted); font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: 0 2px 0 var(--border);
+}
+.person-btn:hover { background: var(--bg2); border-color: var(--yellow); color: var(--ink); }
+.person-btn.active[data-count="solo"]  { background: #e8f5e9; border-color: #4CAF7D; color: #1b5e20; box-shadow: 0 2px 0 #a5d6a7; }
+.person-btn.active[data-count="duo"]   { background: #fff3e0; border-color: #FF8C42; color: #bf360c; box-shadow: 0 2px 0 #ffcc80; }
+.person-btn.active[data-count="multi"] { background: #ede7f6; border-color: #9B7EC8; color: #4a148c; box-shadow: 0 2px 0 #ce93d8; }
+.person-btn.active[data-count="any"]   { background: var(--yellow); border-color: var(--yellow2); color: var(--ink); box-shadow: 0 2px 0 var(--yellow2); }
+
+/* Gender Filter */
+.gender-filter-wrap { margin-bottom: 12px; }
+.gender-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.gender-btn {
+  padding: 8px 18px; border-radius: 20px; border: 2px solid var(--border);
+  background: var(--white); color: var(--muted); font-family: 'Zen Maru Gothic', sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: 0 2px 0 var(--border);
+}
+.gender-btn:hover { background: var(--bg2); border-color: var(--yellow); color: var(--ink); }
+.gender-btn.active[data-gender="female"] { background: #fce4ec; border-color: #e91e8c; color: #880044; box-shadow: 0 2px 0 #f8bbd0; }
+.gender-btn.active[data-gender="male"]   { background: #e3f2fd; border-color: #1565c0; color: #0d47a1; box-shadow: 0 2px 0 #bbdefb; }
+.gender-btn.active[data-gender="both"]   { background: var(--yellow); border-color: var(--yellow2); color: var(--ink); box-shadow: 0 2px 0 var(--yellow2); }
+
+/* 待機状態 */
+.random-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;gap:12px;border:3px dashed var(--yellow);border-radius:var(--radius);background:var(--white);margin-bottom:24px;box-shadow:var(--shadow);}
+.idle-icon{font-size:56px;line-height:1;}
+.idle-text{font-size:18px;font-weight:900;color:var(--ink);}
+.idle-sub{font-size:13px;color:var(--muted);line-height:1.8;}
+/* ルーレット演出 */
+@keyframes roulette-spin{0%{opacity:0.3;transform:translateY(-4px);}50%{opacity:1;transform:translateY(0);}100%{opacity:0.3;transform:translateY(4px);}}
+@keyframes card-land{0%{opacity:0;transform:scale(0.85) translateY(12px);}60%{opacity:1;transform:scale(1.04) translateY(-2px);}80%{transform:scale(0.98);}100%{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes shake-btn{0%,100%{transform:rotate(0deg);}20%{transform:rotate(-6deg);}40%{transform:rotate(6deg);}60%{transform:rotate(-4deg);}80%{transform:rotate(4deg);}}
+.card-value.spinning{animation:roulette-spin 0.08s linear infinite;color:var(--muted);font-size:13px;}
+.idea-card.landing{animation:card-land 0.45s cubic-bezier(0.22,1,0.36,1) forwards;}
+.btn.shaking{animation:shake-btn 0.4s ease;}
+/* Color group */
+.color-group-section { margin-bottom: 24px; }
+.color-group-label {
+  font-size: 13px; font-weight: 900; color: var(--ink);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.color-swatch-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.color-swatch-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 64px; cursor: pointer;
+  padding: 8px 4px; border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.color-swatch-item:hover { background: var(--bg2); border-color: var(--yellow); transform: translateY(-2px); }
+.color-swatch-item.selected { border-color: var(--orange); background: rgba(255,140,66,0.08); }
+.color-swatch-circle {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.08);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15), inset 0 -2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.color-swatch-item:hover .color-swatch-circle { transform: scale(1.12); box-shadow: 0 5px 14px rgba(0,0,0,0.2); }
+.color-swatch-item.selected .color-swatch-circle { transform: scale(1.1); box-shadow: 0 0 0 3px var(--orange), 0 5px 14px rgba(0,0,0,0.2); }
+.color-swatch-name { font-size: 10px; font-weight: 900; color: var(--ink); text-align: center; line-height: 1.2; }
+.color-swatch-mood { font-size: 9px; color: var(--muted); text-align: center; line-height: 1.2; }
+
+/* 旧paletteクラスの互換保持 */
+.palette { display: none; }
+
+@media(max-width:600px){.app{padding:0 16px 60px;}.card-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <a class="back-btn" href="index.html">← ホーム</a>
+    <div class="logo-wrap">
+      <div class="logo-icon">🎲</div>
+      <div class="logo">VLC<span>reator</span></div>
+    </div>
+    <div class="page-title">🎲 お題ルーレット</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('random')">🎲 ランダム生成</button>
+    <button class="tab" onclick="switchTab('pose')">🧍 ポーズ</button>
+    <button class="tab" onclick="switchTab('comp')">🖼️ 構図</button>
+    <button class="tab" onclick="switchTab('outfit')">👗 衣装</button>
+    <button class="tab" onclick="switchTab('hair')">💇 髪型</button>
+    <button class="tab" onclick="switchTab('color')">🎨 カラー</button>
+    <button class="tab" onclick="switchTab('gijinka')">🍰 擬人化</button>
+    <button class="tab" onclick="switchTab('items')">🎀 小物</button>
+    <button class="tab" onclick="switchTab('facial')">😊 表情</button>
+    <button class="tab" onclick="switchTab('odai')">📦 お題箱</button>
+    <button class="tab" onclick="switchTab('saved')">🔖 保存済み</button>
+  </div>
+
+  <!-- ランダム生成 -->
+  <div class="section active" id="sec-random">
+    <div class="sec-header">
+      <div class="sec-h">ランダム生成</div>
+      <div class="sec-sub">カードをクリックして手動選択 / シャッフルでランダム</div>
+    </div>
+    <div class="cat-toggle-wrap">
+      <div class="cat-toggle-label">シャッフル対象</div>
+      <div class="cat-toggles" id="cat-toggles">
+        <div class="cat-toggle on" data-cat="theme"       onclick="toggleCat(this)"><span class="check"></span>テーマ</div>
+        <div class="cat-toggle on" data-cat="composition" onclick="toggleCat(this)"><span class="check"></span>構図</div>        <div class="cat-toggle on" data-cat="pose"        onclick="toggleCat(this)"><span class="check"></span>ポーズ</div>
+        <div class="cat-toggle on" data-cat="outfit"      onclick="toggleCat(this)"><span class="check"></span>衣装</div>
+        <div class="cat-toggle on" data-cat="hair"        onclick="toggleCat(this)"><span class="check"></span>髪型</div>        <div class="cat-toggle on" data-cat="color"       onclick="toggleCat(this)"><span class="check"></span>ベースカラー</div>
+        <div class="cat-toggle"    data-cat="gijinka"     onclick="toggleCat(this)"><span class="check"></span>擬人化</div>
+        <div class="cat-toggle"    data-cat="items"       onclick="toggleCat(this)"><span class="check"></span>小物</div>
+        <div class="cat-toggle"    data-cat="facial"      onclick="toggleCat(this)"><span class="check"></span>表情</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="selectAllCats(true)">すべて選択</button>
+        <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="selectAllCats(false)">すべて解除</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+
+    <!-- 構図の人数フィルター -->
+    <div class="gender-filter-wrap">
+      <div class="cat-toggle-label">構図の人数</div>
+      <div class="gender-btns">
+        <button class="person-btn active" data-count="solo"  onclick="setPersonCount('solo',this)">🧍 1人</button>
+        <button class="person-btn"        data-count="duo"   onclick="setPersonCount('duo',this)">👫 2人</button>
+        <button class="person-btn"        data-count="multi" onclick="setPersonCount('multi',this)">👥 複数人</button>
+        <button class="person-btn"        data-count="any"   onclick="setPersonCount('any',this)">✨ すべて</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+
+    <!-- 衣装・髪型の性別フィルター -->
+    <div class="gender-filter-wrap" id="gender-filter-wrap">
+      <div class="cat-toggle-label">衣装・髪型の性別</div>
+      <div class="gender-btns">
+        <button class="gender-btn active" data-gender="female" onclick="setGender('female',this)">👗 女性向け</button>
+        <button class="gender-btn" data-gender="male" onclick="setGender('male',this)">👔 男性向け</button>
+        <button class="gender-btn" data-gender="both" onclick="setGender('both',this)">✨ 両方（全部）</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+    <div class="btn-row">
+      <button class="btn primary" id="btn-shuffle" onclick="generateAll()">🎲 シャッフル</button>
+      <button class="btn" onclick="resetAll()">↺ リセット</button>
+      <button class="btn" onclick="saveIdea()">🔖 保存</button>
+    </div>
+
+    <!-- 待機状態 -->
+    <div id="random-idle" class="random-idle">
+      <div class="idle-icon">🎲</div>
+      <div class="idle-text">「シャッフル」を押してアイデアを生成しよう</div>
+      <div class="idle-sub">カテゴリを選んでからシャッフルすると<br>テーマ・構図・ポーズ・衣装・髪型・カラー・擬人化・小物・表情がランダムに決まります</div>
+    </div>
+
+    <!-- カードグリッド（生成後に表示） -->
+    <div class="card-grid" id="random-cards" style="display:none;">
+      <div class="idea-card acc-red selectable" id="card-theme" onclick="openPicker('theme')">
+        <div class="card-label">テーマ <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-theme">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-teal selectable" id="card-comp" onclick="openPicker('composition')">
+        <div class="card-label">構図 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-comp">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-purple selectable" id="card-pose" onclick="openPicker('pose')">
+        <div class="card-label">ポーズ <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-pose">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-gold selectable" id="card-outfit" onclick="openPicker('outfit')">
+        <div class="card-label">衣装 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-outfit">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-ink selectable" id="card-hair" onclick="openPicker('hair')">
+        <div class="card-label">髪型 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-hair">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-red selectable" id="card-color" onclick="openPicker('color')">
+        <div class="card-label">ベースカラー <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-color">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-purple selectable" id="card-gijinka" onclick="openPicker('gijinka')" style="display:none;">
+        <div class="card-label">擬人化 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-gijinka">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-gold selectable" id="card-items" onclick="openPicker('items')" style="display:none;">
+        <div class="card-label">小物 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-items">—</div><div class="pick-icon">▾</div>
+      </div>
+      <div class="idea-card acc-teal selectable" id="card-facial" onclick="openPicker('facial')" style="display:none;">
+        <div class="card-label">表情 <span class="pick-hint">タップして選択</span></div>
+        <div class="card-value" id="r-facial">—</div><div class="pick-icon">▾</div>
+      </div>
+    </div>
+
+    <div class="prompt-wrap" id="prompt-wrap" style="display:none;">
+      <div class="prompt-label">生成プロンプト</div>
+      <div class="prompt-box" id="generated-prompt"></div>
+    </div>
+  </div>
+
+  <!-- ポーズ -->
+  <div class="section" id="sec-pose">
+    <div class="sec-header"><div class="sec-h">ポーズ</div><div class="sec-sub">カテゴリから選ぶ・チェックリストでランダム</div></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="pose-mode-btn-random" onclick="switchCatMode('pose','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="pose-mode-btn-checklist" onclick="switchCatMode('pose','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="pose-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomPose()">🔀 ランダム</button></div>
+      <div id="pose-area"></div>
+    </div>
+    <div id="pose-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="pose-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleFromChecklist('pose')">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="pose-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="pose-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナルポーズを追加</div>
+      <div class="custom-add-row">
+        <select class="custom-select" id="pose-custom-group">
+          <option value="静的">静的</option>
+          <option value="動的">動的</option>
+          <option value="感情">感情</option>
+          <option value="特殊">特殊</option>
+          <option value="二人・グループ">二人・グループ</option>
+          <option value="小物・背景込み">小物・背景込み</option>
+          <option value="オリジナル">オリジナル</option>
+        </select>
+        <input class="custom-input" id="pose-custom-input" type="text" placeholder="例：桜の下でくるくる回る" onkeydown="if(event.key==='Enter')addCustomItem('pose')" />
+        <button class="btn primary" onclick="addCustomItem('pose')">追加</button>
+      </div>
+      <div class="custom-list" id="pose-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 構図 -->
+  <div class="section" id="sec-comp">
+    <div class="sec-header"><div class="sec-h">構図</div><div class="sec-sub">人数でフィルターしてランダムまたはチェックリストで選ぶ</div></div>
+    <!-- 人数フィルター -->
+    <div class="gender-filter-wrap">
+      <div class="cat-toggle-label">人数フィルター</div>
+      <div class="gender-btns">
+        <button class="person-btn active" data-count="solo"  onclick="setPersonCount('solo',this)">🧍 1人</button>
+        <button class="person-btn"        data-count="duo"   onclick="setPersonCount('duo',this)">👫 2人</button>
+        <button class="person-btn"        data-count="multi" onclick="setPersonCount('multi',this)">👥 複数人</button>
+        <button class="person-btn"        data-count="any"   onclick="setPersonCount('any',this)">✨ すべて</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="comp-mode-btn-random" onclick="switchCompMode('random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="comp-mode-btn-checklist" onclick="switchCompMode('checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="comp-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomComp()">🔀 ランダム</button></div>
+      <div class="card-grid" id="comp-cards"></div>
+    </div>
+    <div id="comp-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="comp-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleCompChecklist()">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="comp-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="comp-checked-cards" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- 衣装 -->
+  <div class="section" id="sec-outfit">
+    <div class="sec-header"><div class="sec-h">衣装</div><div class="sec-sub">衣装をランダムまたはチェックリストで選ぶ</div></div>
+    <!-- 性別フィルター -->
+    <div class="gender-filter-wrap">
+      <div class="cat-toggle-label">性別フィルター</div>
+      <div class="gender-btns">
+        <button class="gender-btn active" data-gender="female" onclick="setGender('female',this)">👗 女性向け</button>
+        <button class="gender-btn" data-gender="male" onclick="setGender('male',this)">👔 男性向け</button>
+        <button class="gender-btn" data-gender="both" onclick="setGender('both',this)">✨ 両方（全部）</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="outfit-mode-btn-random" onclick="switchCatMode('outfit','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="outfit-mode-btn-checklist" onclick="switchCatMode('outfit','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="outfit-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomOutfit()">🔀 ランダム</button></div>
+      <div class="card-grid" id="outfit-cards"></div>
+    </div>
+    <div id="outfit-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="outfit-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleFromChecklist('outfit')">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="outfit-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="outfit-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナル衣装を追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="outfit-custom-input" type="text" placeholder="例：和洋折衷のゴシックドレス" onkeydown="if(event.key==='Enter')addCustomItem('outfit')" />
+        <button class="btn primary" onclick="addCustomItem('outfit')">追加</button>
+      </div>
+      <div class="custom-list" id="outfit-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 髪型 -->
+  <div class="section" id="sec-hair">
+    <div class="sec-header"><div class="sec-h">髪型</div><div class="sec-sub">髪型をランダムまたはチェックリストで選ぶ</div></div>
+    <!-- 性別フィルター -->
+    <div class="gender-filter-wrap">
+      <div class="cat-toggle-label">性別フィルター</div>
+      <div class="gender-btns">
+        <button class="gender-btn active" data-gender="female" onclick="setGender('female',this)">👗 女性向け</button>
+        <button class="gender-btn" data-gender="male" onclick="setGender('male',this)">👔 男性向け</button>
+        <button class="gender-btn" data-gender="both" onclick="setGender('both',this)">✨ 両方（全部）</button>
+      </div>
+    </div>
+    <div class="cat-toggle-divider"></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="hair-mode-btn-random" onclick="switchCatMode('hair','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="hair-mode-btn-checklist" onclick="switchCatMode('hair','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="hair-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomHair()">🔀 ランダム</button></div>
+      <div class="card-grid" id="hair-cards"></div>
+    </div>
+    <div id="hair-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="hair-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleFromChecklist('hair')">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="hair-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="hair-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナル髪型を追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="hair-custom-input" type="text" placeholder="例：非対称ツインテール" onkeydown="if(event.key==='Enter')addCustomItem('hair')" />
+        <button class="btn primary" onclick="addCustomItem('hair')">追加</button>
+      </div>
+      <div class="custom-list" id="hair-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- カラー -->
+  <div class="section" id="sec-color">
+    <div class="sec-header"><div class="sec-h">ベースカラー</div><div class="sec-sub">系統から選ぶかランダムに</div></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="color-mode-btn-random" onclick="switchCatMode('color','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="color-mode-btn-checklist" onclick="switchCatMode('color','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="color-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomColor()">🔀 ランダム</button></div>
+      <div id="color-group-area"></div>
+      <div class="color-preview" id="color-preview" style="margin-top:20px;"></div>
+      <div class="card-grid" id="color-cards"></div>
+    </div>
+    <div id="color-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="color-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleFromChecklist('color')">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="color-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="color-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナルカラーを追加</div>
+      <div class="custom-add-row">
+        <input type="color" id="color-custom-picker" value="#7B5EA7" style="width:44px;height:38px;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;padding:2px;" />
+        <input class="custom-input" id="color-custom-name" type="text" placeholder="カラー名（例：夕映えパープル）" onkeydown="if(event.key==='Enter')addCustomColor()" />
+        <input class="custom-input" style="width:140px;flex:none;" id="color-custom-mood" type="text" placeholder="雰囲気（例：神秘的）" onkeydown="if(event.key==='Enter')addCustomColor()" />
+        <button class="btn primary" onclick="addCustomColor()">追加</button>
+      </div>
+      <div class="custom-list" id="color-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- お題箱 -->
+  <div class="section" id="sec-odai">
+    <div class="sec-header"><div class="sec-h">お題箱</div><div class="sec-sub">チェックしたお題からランダムに引く</div></div>
+
+    <!-- モード切替 -->
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="mode-btn-random" onclick="switchOdaiMode('random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="mode-btn-checklist" onclick="switchOdaiMode('checklist')">☑️ チェックリスト</button>
+    </div>
+
+    <!-- ランダムモード -->
+    <div id="odai-random-mode">
+      <div class="btn-row">
+        <button class="btn primary" onclick="randomOdai()">🔀 シャッフル</button>
+      </div>
+      <div class="card-grid" id="odai-cards"></div>
+    </div>
+
+    <!-- チェックリストモード -->
+    <div id="odai-checklist-mode" style="display:none;">
+      <div class="odai-checklist-toolbar">
+        <input class="odai-search" id="odai-search" type="text" placeholder="お題を絞り込み…" oninput="filterOdaiList()" />
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span class="odai-check-count" id="odai-check-count">0件選択</span>
+          <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="selectAllOdai(true)">全選択</button>
+          <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="selectAllOdai(false)">全解除</button>
+          <button class="btn primary" onclick="showCheckedOdai()">✓ 選択したお題を表示</button>
+        </div>
+      </div>
+      <div class="odai-checklist" id="odai-checklist"></div>
+      <div class="card-grid" id="odai-selected-cards" style="margin-top:24px;"></div>
+    </div>
+
+    <!-- オリジナルお題追加 -->
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナルお題を追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="odai-custom-input" type="text" placeholder="例：「霧の中で出会った見知らぬ少女」" onkeydown="if(event.key==='Enter')addCustomItem('odai')" />
+        <button class="btn primary" onclick="addCustomItem('odai')">追加</button>
+      </div>
+      <div class="custom-list" id="odai-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 表情 -->
+  <div class="section" id="sec-facial">
+    <div class="sec-header"><div class="sec-h">表情</div><div class="sec-sub">キャラクターの表情をランダムまたはチェックリストで選ぶ</div></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="facial-mode-btn-random" onclick="switchFacialMode('random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="facial-mode-btn-checklist" onclick="switchFacialMode('checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="facial-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomFacial()">🔀 シャッフル</button></div>
+      <div class="card-grid" id="facial-cards"></div>
+    </div>
+    <div id="facial-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="facial-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleFacialChecklist()">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="facial-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="facial-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナル表情を追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="facial-custom-input" type="text" placeholder="例：照れながら微笑む、獰猛に笑う…" onkeydown="if(event.key==='Enter')addCustomItem('facial')" />
+        <button class="btn primary" onclick="addCustomItem('facial')">追加</button>
+      </div>
+      <div class="custom-list" id="facial-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 擬人化 -->
+  <div class="section" id="sec-gijinka">
+    <div class="sec-header"><div class="sec-h">擬人化</div><div class="sec-sub">擬人化テーマをランダムまたはチェックリストで選ぶ</div></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="gijinka-mode-btn-random" onclick="switchCatMode('gijinka','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="gijinka-mode-btn-checklist" onclick="switchCatMode('gijinka','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="gijinka-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomGijinka()">🔀 シャッフル</button></div>
+      <div class="card-grid" id="gijinka-cards"></div>
+    </div>
+    <div id="gijinka-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="gijinka-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleGijinkaChecklist()">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="gijinka-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="gijinka-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナル擬人化テーマを追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="gijinka-custom-input" type="text" placeholder="例：抹茶パフェ、ひまわり、台風…" onkeydown="if(event.key==='Enter')addCustomItem('gijinka')" />
+        <button class="btn primary" onclick="addCustomItem('gijinka')">追加</button>
+      </div>
+      <div class="custom-list" id="gijinka-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 小物 -->
+  <div class="section" id="sec-items">
+    <div class="sec-header"><div class="sec-h">小物</div><div class="sec-sub">キャラクターが持つ・身につけるアイテムを選ぶ</div></div>
+    <div class="odai-mode-bar">
+      <button class="odai-mode-btn active" id="items-mode-btn-random" onclick="switchCatMode('items','random')">🔀 ランダム</button>
+      <button class="odai-mode-btn" id="items-mode-btn-checklist" onclick="switchCatMode('items','checklist')">☑️ チェックリスト</button>
+    </div>
+    <div id="items-random-mode">
+      <div class="btn-row"><button class="btn primary" onclick="randomItems()">🔀 シャッフル</button></div>
+      <div class="card-grid" id="items-cards"></div>
+    </div>
+    <div id="items-checklist-mode" style="display:none;">
+      <div class="cat-checklist-wrap" id="items-checklist-wrap"></div>
+      <div class="odai-draw-bar">
+        <button class="btn primary" onclick="shuffleItemsChecklist()">🔀 チェック済みからシャッフル</button>
+        <span class="cat-check-count" id="items-check-count">0件選択</span>
+      </div>
+      <div class="card-grid" id="items-checked-cards" style="margin-top:16px;"></div>
+    </div>
+    <div class="custom-add-section">
+      <div class="custom-add-title">＋ オリジナル小物を追加</div>
+      <div class="custom-add-row">
+        <input class="custom-input" id="items-custom-input" type="text" placeholder="例：オルゴール、万華鏡、羽根ペン…" onkeydown="if(event.key==='Enter')addCustomItem('items')" />
+        <button class="btn primary" onclick="addCustomItem('items')">追加</button>
+      </div>
+      <div class="custom-list" id="items-custom-list"></div>
+    </div>
+  </div>
+
+  <!-- 保存済み -->
+  <div class="section" id="sec-saved">
+    <div class="sec-header"><div class="sec-h">保存済みアイデア</div><div class="sec-sub">気に入ったアイデアをストック</div></div>
+    <div id="saved-list-wrap"></div>
+  </div>
+
+</div>
+
+<!-- ピッカーモーダル -->
+<div class="picker-overlay" id="picker-overlay" onclick="closePicker()"></div>
+<div class="picker-drawer" id="picker-drawer">
+  <div class="picker-header">
+    <div class="picker-title" id="picker-title"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input class="picker-search" id="picker-search" type="text" placeholder="絞り込み…" oninput="filterPicker()" />
+      <button class="picker-close" onclick="closePicker()">✕</button>
+    </div>
+  </div>
+  <div class="picker-list" id="picker-list"></div>
+</div>
+
+<script>
+/* ── DATA ── */
+const DATA = {
+  theme: [
+    '日常の一瞬','放課後の教室','雨の日の帰り道','深夜のコンビニ','屋上で風に吹かれる','朝の光の中で目覚める','夕暮れの土手','懐かしい夏休み','誰もいない図書館','終わりかけの文化祭','初めての一人暮らし','眠れない深夜3時','部活最後の日','入学式の朝','卒業式の夕方','修学旅行の夜','初バイトの緊張','試験前夜の焦り','学祭前夜の準備','引っ越しの日の空き部屋','幼馴染との再会','幼い頃の遊び場に戻る','古いアルバムを見つける','祖父母の家の縁側','雪の日の下校','雨宿りで相合い傘','秋の落ち葉を踏む音','春の匂いがする朝','夏祭りの夜店','冬の湯気たつラーメン','誰かの誕生日サプライズ','プレゼントを選ぶ時間',
+    '静寂な夜明け','初夏の午後','嵐の前夜','花びら舞う決意','幻想的な海底','星が降る夜の森','霧の中の古城','雪が積もった神社','満開の桜並木','夏の入道雲','秋の紅葉山','凍てつく冬の湖','夕焼けに染まる海岸','月明かりの竹林','朝霧の草原','嵐の海','砂漠の夜明け','北極の白夜','熱帯雨林の滝壺','地平線まで続くひまわり畑','彗星が流れる夜空','皆既日食の瞬間','火山の噴煙と夕日','虹の根元に立つ','干潮の砂浜','洞窟の中の光の柱','高原の霧の海','湖面に映る逆さ富士','春一番が吹いた日','初雪の朝','台風一過の青空','蛍が舞う夜の川',
+    '異世界の街並み','魔法陣の中心','廃墟の図書館','空の果て','浮島の楽園','地底の古代都市','時空が歪む場所','神々の宴','機械と自然が共存する世界','魔法が日常の世界','竜の住む峡谷','天空の神殿','水中都市の夕暮れ','砂漠の蜃気楼','空飛ぶ帆船の甲板','呪われた森の奥','魔法学校の入学式','錬金術師の秘密の工房','妖精の市場','神話の時代の英雄','魔王城の最上階','精霊が宿る大木','禁書が眠る地下書庫','予言に縛られた王女','二つの月が昇る夜','太陽が二つある世界','時間が逆に流れる村','記憶が形になる世界','言葉が花になる世界','嘘がつけない国','夢の中の夢','死後の世界の入口',
+    '宇宙ステーションの朝','サイバーパンクの雨の夜','廃墟となった未来都市','AIが支配する社会の片隅','記憶を売買する世界','感情を持ったロボット','並行世界の扉','タイムトラベルの副作用','コールドスリープから覚めた朝','火星の植民地','宇宙人と人類の初接触','意識だけで生きる世界','バーチャルと現実の境界','ナノマシンで進化した人類','宇宙の果ての灯台','廃墟の遊園地と未来の子ども','最後のアナログ写真',
+    '戦いの後','失われた記憶','祭りの夜','世界の終わりの前日','長い旅の終わり','再会の瞬間','別れの駅のホーム','秘密を抱えた少女','勝利の涙','最後の魔法','夢と現実の境界','過去に戻れる扉','運命の出会い','禁断の約束','裏切りと赦し','英雄の引退の日','革命前夜の酒場','戴冠式の朝','処刑前夜の独房','決闘の夜明け',
+    '振り返ると増えていく影','笑えなくなった道化師','人形の目が動いた深夜','誰にも見えない幽霊と少女','蜘蛛の巣に包まれた眠り姫','廃病院の最上階','呪われた絵画の前で','姿見に映らない少女',
+    '色のない世界でひとつだけ光る花','声を失った歌姫と聴こえない少年','忘れられた神様と覚えているひとりの子','星を集める仕事をする人','音楽が見える世界','夢を食べる生き物','時間を止めて逃げ出した少女','永遠に終わらない春の中で',
+  ],
+  composition: {
+    solo: [
+      // ── カメラワーク・視点 ──
+      '俯瞰・見下ろし','ローアングル・あおり','背後からの視点',
+      '見上げる構図','覗き込む構図','窓越しの構図',
+      '魚眼レンズ風','望遠レンズ風・圧縮効果','広角レンズ風・ゆがみ',
+      '手持ちカメラ風ブレ','傾いたアングル',
+      // ── 配置・フレーミング ──
+      '三分割法','シンメトリー','斜め構図','フレームインフレーム',
+      '人物＋広大な背景','クロースアップ','対角線構図','円形構図',
+      '中央に大きく配置','端に小さく配置','手だけを映す',
+      '目線を外している','画面外を見つめる','走り抜ける瞬間',
+      'ズームアウト風の孤独感','近景の花・草で額縁',
+      '空と人物の比率9:1','地面と人物の比率9:1',
+      // ── 光・雰囲気 ──
+      '逆光・光を背負う','シルエットのみ','霧・霞で奥行き',
+      '水面に映る反射','影を強調した構図','スポットライト風',
+      '木漏れ日の中','ガラス越しの光の屈折','雨の雫越しに見る',
+      '煙越しに見る','炎に照らされた横顔','月光だけが光源',
+      // ── レイアウト・演出 ──
+      '一点透視','二点透視','三点透視',
+      '万華鏡のような繰り返し','幾何学的な分割',
+      '和風掛け軸レイアウト','見開きページ風の横長','ポスター風センタリング',
+      '時間経過を一枚に','前景と後景の対比',
+    ],
+    duo: [
+      // ── ふたりの配置 ──
+      'ツーショット','ふたりが向き合う','背中合わせ',
+      'ふたりが手をつなぐ構図','片方が片方を見つめる',
+      'ふたりのシルエット','ふたりで空を見上げる',
+      'ふたりの距離感を強調','一方が画面外を向く',
+      // ── カメラワーク（二人向け）──
+      'フレームインフレーム（二人）','俯瞰ツーショット',
+      '逆光でシルエットのツーショット','窓越しに見つめ合う',
+      '水面に映る二人','片方だけクロースアップ',
+      // ── 構図・雰囲気 ──
+      'シンメトリー（二人対称）','斜め構図（二人）',
+      '二人の手だけを映す','前後に重なる二人',
+      '大人と子どもの対比','高低差のある二人',
+    ],
+    multi: [
+      // ── 群像・複数人 ──
+      '群像','群像シルエット','三人以上が並ぶ',
+      '輪になった構図','放射状に広がる構図',
+      '一人が中心で周囲を囲む','行進・パレード構図',
+      '集合写真風','バンドショット風',
+      // ── カメラワーク（複数向け）──
+      '俯瞰で複数人を見下ろす','遠景で小さく複数人',
+      'パノラマ横長構図','群像＋広大な背景',
+      // ── 演出 ──
+      '時間経過を一枚に（複数場面）','コマ割り風複数視点',
+      '鏡の間に無限に続く人物',
+    ],
+    any: [
+      // ── 人数を問わない汎用構図 ──
+      '三分割法','シンメトリー','斜め構図','フレームインフレーム',
+      '逆光・光を背負う','シルエットのみ','霧・霞で奥行き',
+      '水面に映る反射','影を強調した構図','スポットライト風',
+      '木漏れ日の中','ガラス越しの光の屈折',
+      '一点透視','二点透視','万華鏡のような繰り返し',
+      '幾何学的な分割','ポスター風センタリング',
+      '和風掛け軸レイアウト','見開きページ風の横長',
+    ],
+  },
+  pose: {
+    '静的': ['立ち姿・正面','座って本を読む','窓辺に寄りかかる','膝を抱えて座る','横になってうとうと','壁にもたれる','傘をさして立つ','足を組んで座る','テーブルに頬杖をつく','ベッドの端に腰掛ける','椅子に深く座る','床に体育座り','背筋を伸ばして立つ','手を合わせてお祈り','腕を組んで仁王立ち','ドアにもたれる','草の上に寝転ぶ','木にもたれて目をつぶる','机に突っ伏して眠る','窓の外を見つめる','膝立ち','片膝立ち','しゃがんで何かを拾う','石段に座る','欄干に肘をつく','本棚の前で立ち読み','スマホを見ながら立つ','背伸びをする','地べたに座ってスケッチ','縁側に腰掛ける'],
+    '動的': ['走る・疾走','ジャンプ・浮遊','振り返る瞬間','剣を振り上げる','風に髪をなびかせる','舞う・踊る','水に飛び込む瞬間','転倒しそうな瞬間','魔法を放つ瞬間','空を飛ぶ','自転車を漕ぐ','ボールを蹴る','傘を広げる','走りながら振り返る','段差を飛び越える','坂道を駆け下りる','花びらを散らす','水しぶきを上げて走る','本を抱えて急ぐ','手を振りながら走る','弓を引く','拳を突き出す','蹴り上げる','木から飛び降りる','車窓から身を乗り出す','波に向かって走る','雨の中を走る','楽器を演奏しながら歩く','花束を投げる'],
+    '感情': ['泣き崩れる','大笑い','驚き・目を見開く','照れ・頬染め','睨む・威圧','物思いにふける','絶叫','静かな怒り','ため息をつく','嬉しさで跳び上がる','悲しみに項垂れる','恥ずかしさで顔を隠す','好奇心で身を乗り出す','呆れた表情で腕を組む','困惑して頭をかく','ニヤリと不敵な笑み','涙をこらえて微笑む','怒りで拳を握る','喜びで両手を上げる','切なさで目を伏せる','無表情でじっと見つめる','苦しさで胸を押さえる','安堵で力が抜ける','興奮で身を震わせる','寂しさで空を見上げる','決意を固めて目を閉じる','後悔で顔を覆う','期待で口元をほころばせる','恐怖で後ずさる','感動で手を口に当てる'],
+    '特殊': ['浮遊・重力無視','影と対話する','鏡を覗き込む','空を指さす','花束を抱える','手を差し伸べる','光に包まれる','闇に溶け込む','水中に沈む','炎をまとう','翼を広げる','蝶に囲まれる','糸に操られる','星を掴もうとする','崩れていく世界の中心に立つ','光の粒子になって散る','本の中から飛び出す','花に変身していく','氷に閉じ込められる','水面に立つ','空中に文字を書く','影だけが別の動きをする','二つの自分が対峙する','霧の中に消えていく','涙が宝石になって落ちる','髪が炎になる'],
+    '二人・グループ': ['肩を並べて歩く','手をつなぐ','おんぶ・背負う','抱きしめる','額をくっつける','見つめ合う','背中合わせで立つ','片方が片方を守る','一緒に空を見上げる','追いかける・追われる','並んで座る','倒れかけを支える','頭を撫でる','肩に手を置く','おでこをくっつける','片方がもたれかかる','手を引っ張って走る','一緒に傘に入る','ハイタッチする','指切りげんまんする','向き合って両手をつなぐ','片方が片方の涙を拭く','背中に話しかける','三人で肩を組む','輪になって踊る'],
+    '小物・背景込み': ['カフェで一人ラテアートを見つめる','本棚の間に座り込む','雨の日に窓に文字を書く','夕暮れの橋の上でもたれる','屋台の前で悩む','花畑に座って空を見る','砂浜に文字を書く','木の上に座る','灯台の先端に立つ','崖の端に足を垂らして座る','屋根の上で星を数える','線路の上を歩く','駅のホームで電車を待つ','バス停で雨宿り','ブランコに乗る','砂場に絵を描く'],
+  },
+  outfit: {
+    female: [
+      // ── 制服・学校（女性向け）──
+      'セーラー服（夏）','セーラー服（冬）','セーラー服（カスタム）',
+      'ブレザー制服','体操着','ブルマ（レトロ）','水着＋パーカー',
+      '応援団服','吹奏楽の制服','バトン部衣装','チアリーダー服','カフェ店員服',
+      // ── ドレス・フォーマル ──
+      'ウェディングドレス','黒のイブニングドレス','パーティードレス',
+      'ゴシックドレス','ナイトドレス','マーメイドドレス','オフショルダードレス',
+      'コルセットドレス','プリンセスドレス（ふわふわ）','スレンダードレス（スリット入り）',
+      'Aラインドレス','ケープドレス','ハイネックドレス','レースドレス（白）','レースドレス（黒）',
+      'ミニドレス（パーティー）','ロングドレス（光沢）','ヴィクトリアンドレス','アンティークドレス',
+      // ── 和装（女性向け）──
+      '着物（振袖）','着物（小紋）','着物（大人）','浴衣','袴（卒業式）',
+      '巫女装束','十二単風','花魁（ド派手な打掛）',
+      // ── コスプレ・特殊（女性向け）──
+      'メイド服（クラシック）','メイド服（ゴシック）','メイド服（カフェ風）','メイド服（ミリタリー）',
+      'バニースーツ（黒）','バニースーツ（白）','バニースーツ（カラー）','バニースーツ（ミニ丈）',
+      'ロリータ（スイート）','ロリータ（ゴシック）','ロリータ（クラシック）','ロリータ（和ロリ）',
+      'ナース服','看護師服（現代）','スチュワーデス制服',
+      '魔法少女コスチューム','プリキュア風コスチューム',
+      '闘技場の戦士コスチューム','アリーナコスチューム（露出多め）','サーカス団員衣装',
+      // ── 現代ファッション（女性向け）──
+      'クロップドパーカー','プリーツスカート＋ブラウス','ビスチェ＋フレアスカート',
+      'クロップドトップス＋ハイウエスト','サロペット（デニム）','ミリタリージャケット＋ミニスカ',
+      'ファーコート','スーツ（スカート）',
+      // ── エスニック（女性向け）──
+      'チャイナドレス（スリット深め）','チャイナドレス（ショート）',
+      'インド風サリー','タイの民族衣装','ハワイアンドレス（アロハ）',
+      'アフリカン柄ワンピース','フラメンコドレス','フラダンス衣装',
+      // ── サブカル（女性向け）──
+      'サイバーパンク（露出多め）','スチームパンク（コルセット＋ゴーグル）',
+      'バレエ衣装（チュチュ）','バレエ衣装（コンテンポラリー）',
+      '体操選手レオタード','フィギュアスケート衣装',
+      // ── 水着・ランジェリー ──
+      '水着（ビキニ）','水着（ワンピース）','水着（競泳）','ラッシュガード＋水着',
+      'セクシーランジェリー（黒レース）','ガーターベルトセット','コルセット（下着風）',
+      // ── ファンタジー（女性向け）──
+      'エルフの狩衣','聖女の白装束','神官装束','精霊使いの薄衣',
+      '妖精の羽付き衣','天使の白ローブ','人魚の衣装',
+      'ステンドグラス風ドレス','星空柄のローブ','花をまとったドレス','水の精霊の衣',
+      '古代神殿の巫女服',
+    ],
+    male: [
+      // ── 制服・学校（男性向け）──
+      '学ランアレンジ','詰め襟学ラン','ブレザー＋ネクタイ',
+      'ジャージ（部活）','吹奏楽の制服（男性）','スーパーのエプロン（バイト）',
+      // ── スーツ・フォーマル ──
+      'タキシード','燕尾服','スーツ（パンツ）','スリーピーススーツ',
+      'モーニングコート','カジュアルスーツ','バンカラ学ラン',
+      // ── 和装（男性向け）──
+      '紋付羽織袴','狩衣（平安男性）','束帯（平安貴族）','甚平','作務衣',
+      '半纏・法被','武者鎧','忍者装束',
+      // ── ファンタジー（男性向け）──
+      'ファンタジー鎧（重装）','プレートアーマー（全身）','ダークナイト鎧',
+      '魔法使いローブ（黒）','魔法使いローブ（白）','海賊衣装','騎士団服',
+      '錬金術師のコート','吸血鬼の夜会服','魔王のマント','竜騎士の鎧',
+      '旅人のマント（ぼろ）','砂漠の隊商スタイル','雪国の毛皮コート',
+      '悪魔の衣装',
+      // ── 現代ファッション（男性向け）──
+      'カジュアルストリート','オーバーサイズパーカー','デニムジャケット',
+      'レザージャケット','ライダースジャケット','スポーツウェア','ランニングウェア',
+      'マウンテンパーカー','トレンチコート','チェスターコート','ダウンジャケット',
+      'ビッグシルエットコート','ニットセーター（太め）','タートルネックニット',
+      'デニムオーバーオール',
+      // ── 職業・制服（男性向け）──
+      'マリン系セーラー','海軍士官服','軍服（現代）','軍服（レトロWW2風）',
+      '警察官の制服','消防士の制服','パイロット制服','ドクター白衣','獣医コート',
+      '探偵コート＋ハット','ビクトリア朝の紳士服',
+      // ── サブカル（男性向け）──
+      'サイバーパンクスーツ','テクノスーツ（未来型）','スチームパンク（飛行士）',
+      'ゴスパンク','パンクロック（スタッズ多め）','ビジュアル系バンドマン衣装',
+      'ダンサー衣装（HipHop）','ダンサー衣装（ジャズ）','ダンサー衣装（ボールルーム）',
+      '水泳競技水着','テニスウェア',
+      // ── エスニック（男性向け）──
+      'アラビアンナイト風（男性）','スコティッシュタータン','ヒッポドローム（古代ローマ）',
+      // ── SF・未来 ──
+      '未来の宇宙服','宇宙飛行士スーツ','アンドロイドスーツ',
+      'エイリアン風コスチューム','ホログラムスーツ','ナノスーツ（全身タイツ型）',
+    ],
+    both: [
+      // ── 共通・どちらでも ──
+      'ファンタジー鎧（軽装）','魔法使いローブ（カラフル）','袴（袴パンツ）',
+      'ヒーロースーツ（タイツ型）','アスレジャー（スポーツ×カジュアル）',
+      'サイバーパンクスーツ（男女共通）','スチームパンク（混合）',
+      '星空柄のローブ','旅人のマント（ぼろ）','雪国の毛皮コート',
+      'カジュアルストリート','オーバーサイズパーカー','デニムジャケット',
+      'スポーツウェア','マウンテンパーカー','トレンチコート','ダウンジャケット',
+      'タートルネックニット','水着（競泳）','ラッシュガード＋水着',
+      '軍服（現代）','吹奏楽の制服','ジャージ（部活）','体操着',
+    ],
+  },
+  hair: {
+    female: [
+      // ── ショート系（女性向け）──
+      'ショートボブ','ひし形ボブ','外はねボブ','内巻きボブ','Cカールボブ',
+      'ぱっつん前髪ショート','ピクシーカット','耳出しショート',
+      // ── ミディアム系（女性向け）──
+      '鎖骨ラインのボブ','外はねミディアム','内巻きミディアム','ゆるふわミディアム',
+      'くせ毛風ミディアム','サイドアップミディアム','ひとつ結びミディアム',
+      // ── ロング系（女性向け）──
+      'ロングストレート','ウェーブロング','巻き髪ロング','ゆるふわロング',
+      'くせ毛風ロング','パーマロング','毛先だけカールロング','ぱっつん前髪ロング',
+      // ── アップ・まとめ髪（女性向け）──
+      'ツインテール（高め）','ツインテール（低め）','ドリルツインテール','ツインお団子',
+      '高めポニーテール','低めポニーテール','サイドテール','おさげ・三つ編み',
+      'フィッシュボーン三つ編み','お団子（きっちり）','お団子（ゆるふわ）','ダブルお団子',
+      'お姫様巻き','天使の輪ハーフアップ','ルーズアップ','カチューシャ留め',
+      '編み込みアップ','シニョン','くるりんぱハーフアップ','ローポニーテール',
+      'ハーフアップ＋カール','ヘアバンドでまとめた','片サイドだけ耳かけ',
+      '花を飾った髪','リボンで束ねた髪','編み込みたっぷり',
+    ],
+    male: [
+      // ── ショート系（男性向け）──
+      'ベリーショート','スポーツショート','センターパート短髪',
+      'ウルフカット','マッシュルームカット','刈り上げアシメ',
+      'ツーブロック','アンダーカット','モホーク風','片側だけ刈り上げ',
+      'サイドを刈り上げたロック系',
+      // ── ミディアム系（男性向け）──
+      'ミディアムパーマ','ミディアムストレート','ミディアムウェーブ',
+      '前髪だけ長いショート','ヘビーバング（重め前髪）',
+      // ── ロング系（男性向け）──
+      'ロングストレート（男性）','ロングウェーブ（男性）',
+      'ロングヘア＋パーマ（ファッション）','後ろで束ねたロング',
+      // ── まとめ髪（男性向け）──
+      '低めポニーテール','お団子（男性・高め）','ゆるくまとめたお団子',
+      // ── 特殊・個性的（男性向け）──
+      'ドレッドロックス','コーンロウ','フードで半分隠れた髪',
+      '乱れた無造作','寝癖ボサボサ',
+    ],
+    both: [
+      // ── どちらでもOK ──
+      'ショートボブ','ウルフカット','センターパート短髪','乱れた無造作',
+      '寝癖ボサボサ','フードで半分隠れた髪','ドレッドロックス','コーンロウ',
+      'ミディアムウェーブ','ミディアムストレート','ロングストレート',
+      '高めポニーテール','低めポニーテール','おさげ・三つ編み',
+      'ツーブロック','アンダーカット','刈り上げアシメ',
+    ],
+  },
+  color: [
+    // ── ピンク・赤系 ──
+    {name:'桜ピンク',    base:'#F4B8D3',h:'#FFF0F5',s:'#9B4F6B',mood:'柔らかく甘い'},
+    {name:'珊瑚ピンク',  base:'#E8735A',h:'#FBE9E7',s:'#BF360C',mood:'元気で個性的'},
+    {name:'灰桜',        base:'#DEB8C0',h:'#FCF2F4',s:'#8A5060',mood:'ほのかで上品'},
+    {name:'牡丹色',      base:'#D0568A',h:'#FCE8F2',s:'#881040',mood:'華やかで艶やか'},
+    {name:'薔薇色',      base:'#E91E8C',h:'#FCE4F4',s:'#880044',mood:'情熱的でロマンチック'},
+    {name:'深緋',        base:'#7B1F3A',h:'#F8E8EC',s:'#4A0018',mood:'妖艶で大人っぽい'},
+    {name:'ルビーレッド',base:'#C62828',h:'#FFEBEE',s:'#7F0000',mood:'強烈で情熱的'},
+    {name:'茜色',        base:'#C0392B',h:'#FDE8E8',s:'#7A1010',mood:'燃えるような情熱'},
+    {name:'紅梅',        base:'#E86480',h:'#FCEEF2',s:'#9A1840',mood:'春らしく可憐'},
+    {name:'苺色',        base:'#E8304A',h:'#FCE8EC',s:'#A01020',mood:'みずみずしく甘酸っぱい'},
+    {name:'朱色',        base:'#E84A1A',h:'#FDF0EC',s:'#9A2000',mood:'力強く鮮烈'},
+    {name:'撫子色',      base:'#EEA0B8',h:'#FDF0F4',s:'#A84868',mood:'淡く可愛らしい'},
+    {name:'鴇色',        base:'#F0A8B0',h:'#FEF2F4',s:'#B05868',mood:'ふわりと優しい'},
+    // ── オレンジ・黄系 ──
+    {name:'夕焼けオレンジ',base:'#F4845F',h:'#FFF3E0',s:'#B94020',mood:'情熱的で暖かい'},
+    {name:'橙',          base:'#E8820A',h:'#FFF4E8',s:'#904000',mood:'にぎやかで明るい'},
+    {name:'ゴールド',    base:'#F9A825',h:'#FFF8E1',s:'#7A5200',mood:'華やかで高貴'},
+    {name:'琥珀',        base:'#C8860A',h:'#FFF8E8',s:'#7A4F00',mood:'温かく懐かしい'},
+    {name:'山吹色',      base:'#F5A623',h:'#FFF8E8',s:'#B06000',mood:'明るく活発'},
+    {name:'蜂蜜色',      base:'#F0C040',h:'#FFFBE8',s:'#A07800',mood:'甘くほっこり'},
+    {name:'薄黄',        base:'#F8E878',h:'#FFFDEE',s:'#B0A800',mood:'やわらかく春めく'},
+    {name:'向日葵',      base:'#FFD130',h:'#FFFDE8',s:'#B09000',mood:'元気で夏らしい'},
+    {name:'柑子色',      base:'#F08028',h:'#FFF3E8',s:'#A04800',mood:'果実のような爽やかさ'},
+    {name:'黄土色',      base:'#C89040',h:'#FBF4E0',s:'#7A5800',mood:'大地のような安定感'},
+    // ── グリーン系 ──
+    {name:'抹茶グリーン',base:'#7CB87F',h:'#E8F5E9',s:'#2E5E2E',mood:'自然で清涼'},
+    {name:'若草色',      base:'#8FC34A',h:'#F0F8E8',s:'#3A6A10',mood:'清々しく生命力'},
+    {name:'萌黄',        base:'#90C040',h:'#F2F9E8',s:'#3A6000',mood:'新鮮で希望に満ちた'},
+    {name:'鶯色',        base:'#6B8A3A',h:'#EEF4E8',s:'#2A4010',mood:'落ち着いた和の雰囲気'},
+    {name:'エメラルド',  base:'#00695C',h:'#E0F2F1',s:'#004D40',mood:'神秘的で深遠'},
+    {name:'孔雀緑',      base:'#007A7A',h:'#E0F5F5',s:'#003A3A',mood:'鮮やかで個性的'},
+    {name:'深緑',        base:'#1B5E20',h:'#E8F5E9',s:'#003300',mood:'深く落ち着いた森の色'},
+    {name:'薄緑',        base:'#A8D8A8',h:'#EEF8EE',s:'#488848',mood:'やさしくさわやか'},
+    {name:'苔色',        base:'#6A7A30',h:'#EEF0E0',s:'#303A08',mood:'渋く古風'},
+    {name:'翡翠',        base:'#40C870',h:'#E0FAE8',s:'#088038',mood:'生き生きとした清新さ'},
+    {name:'薄荷',        base:'#80D8C0',h:'#E8FAF5',s:'#208868',mood:'清涼でリフレッシュ'},
+    {name:'緑青',        base:'#2E8870',h:'#E0F5F0',s:'#005040',mood:'落ち着いた和風の深み'},
+    // ── ブルー系 ──
+    {name:'水色',        base:'#5BC8E8',h:'#EAF8FC',s:'#1A7898',mood:'爽やかで透明感'},
+    {name:'コバルトブルー',base:'#1565C0',h:'#E3F2FD',s:'#0D47A1',mood:'知性的で冷静'},
+    {name:'瑠璃色',      base:'#1B4FA8',h:'#E8F0FC',s:'#0A2060',mood:'凛として美しい'},
+    {name:'夜空ネイビー',base:'#1A2A5E',h:'#3B4F8C',s:'#E8EAF6',mood:'神秘的で深い'},
+    {name:'鉄紺',        base:'#1A2035',h:'#E8EAF0',s:'#080C18',mood:'重厚でクール'},
+    {name:'空色',        base:'#87CEEB',h:'#EAF6FC',s:'#2878A8',mood:'晴れやかで開放的'},
+    {name:'群青',        base:'#2050A8',h:'#E8EEFA',s:'#081878',mood:'深く情熱的な青'},
+    {name:'青磁',        base:'#88C8D0',h:'#EAF8FA',s:'#287888',mood:'清楚で涼しげ'},
+    {name:'ターコイズ',  base:'#00BCD4',h:'#E0F8FC',s:'#006080',mood:'個性的でトロピカル'},
+    {name:'浅葱',        base:'#48C0B0',h:'#E0F8F5',s:'#087868',mood:'爽やかな和風ブルー'},
+    {name:'インディゴ',  base:'#3F51B5',h:'#E8EAF6',s:'#1A237E',mood:'知的でシック'},
+    {name:'藍色',        base:'#1A3A6A',h:'#E0E8F8',s:'#080C38',mood:'和の深みと静寂'},
+    {name:'氷色',        base:'#C8E8F8',h:'#F0F8FD',s:'#6898B8',mood:'透き通るように澄んだ'},
+    // ── パープル系 ──
+    {name:'ラベンダー',  base:'#B39DDB',h:'#F3E5F5',s:'#512DA8',mood:'夢幻的で優雅'},
+    {name:'藤色',        base:'#9B7EC8',h:'#F0EBF8',s:'#4A2D8A',mood:'繊細で詩的'},
+    {name:'紫紺',        base:'#2D1B69',h:'#EAE6F8',s:'#100840',mood:'高貴で神秘的'},
+    {name:'葡萄色',      base:'#6A1E8A',h:'#F0E8F8',s:'#380058',mood:'深く艶やかな紫'},
+    {name:'藤紫',        base:'#C898E8',h:'#F8F0FC',s:'#7838A8',mood:'ロマンチックで幻想的'},
+    {name:'菖蒲色',      base:'#7848A8',h:'#F0E8FC',s:'#380878',mood:'凛として高雅'},
+    {name:'桔梗色',      base:'#5828A0',h:'#ECE8F8',s:'#200868',mood:'鮮やかで気品ある紫'},
+    {name:'ライラック',  base:'#D8B8E8',h:'#FAF2FC',s:'#9868B8',mood:'柔らかく夢見るよう'},
+    {name:'紫水晶',      base:'#9058C0',h:'#F2ECF8',s:'#4A1880',mood:'神秘的に輝く'},
+    {name:'マゼンタ',    base:'#C81888',h:'#FCE8F4',s:'#780050',mood:'インパクト抜群'},
+    // ── 白・グレー・黒系 ──
+    {name:'月白',        base:'#E8EAF0',h:'#FFFFFF',s:'#9FA8DA',mood:'清楚で幻想的'},
+    {name:'薄墨',        base:'#C8C8C0',h:'#F8F8F5',s:'#606058',mood:'静謐で侘び寂び'},
+    {name:'鈍色',        base:'#8A8A8E',h:'#F0F0F2',s:'#3A3A3E',mood:'落ち着いた渋み'},
+    {name:'チャコール',  base:'#37474F',h:'#ECEFF1',s:'#102027',mood:'渋くスタイリッシュ'},
+    {name:'漆黒×金',    base:'#1A1008',h:'#3A2A10',s:'#D4A820',mood:'豪華絢爛'},
+    {name:'純白',        base:'#F8F8F8',h:'#FFFFFF',s:'#D0D0D0',mood:'清廉で神聖'},
+    {name:'オフホワイト',base:'#F5F0E8',h:'#FFFFFF',s:'#C0B8A8',mood:'温かくやさしい'},
+    {name:'パールグレー',base:'#D8D8E0',h:'#F8F8FC',s:'#888898',mood:'上品で洗練された'},
+    {name:'スレートグレー',base:'#607D8B',h:'#ECEFF1',s:'#263238',mood:'クールでモダン'},
+    {name:'鉛色',        base:'#505060',h:'#ECECF0',s:'#181828',mood:'重厚でミステリアス'},
+    // ── 茶・ベージュ系 ──
+    {name:'小麦色',      base:'#D4A870',h:'#FBF4E8',s:'#886030',mood:'健康的でナチュラル'},
+    {name:'キャメル',    base:'#C89060',h:'#FAF2E8',s:'#785030',mood:'温かみのあるナチュラル'},
+    {name:'チョコレート',base:'#5D2E0C',h:'#F0E8E0',s:'#2A1000',mood:'甘くリッチな深み'},
+    {name:'マロン',      base:'#8B4513',h:'#F5ECE8',s:'#4A1800',mood:'秋らしく落ち着いた'},
+    {name:'ベージュ',    base:'#E8D8B8',h:'#FBF8F0',s:'#A89060',mood:'やわらかくナチュラル'},
+    {name:'砂色',        base:'#D8C8A0',h:'#FAF6EC',s:'#988060',mood:'乾いた大地のような'},
+    {name:'ローズウッド',base:'#A0483A',h:'#F5ECE8',s:'#601820',mood:'深みのある暖かさ'},
+    {name:'テラコッタ',  base:'#C07050',h:'#FAF0E8',s:'#804830',mood:'土の温かみと大人感'},
+  ],
+  facial: {
+    'ポジティブ・明るい': [
+      '満面の笑み','ニコニコ笑顔','はにかみ笑顔','はっきりした笑顔',
+      'いたずらっぽい笑み','自信あふれる微笑み','得意げな顔','嬉しさを隠せない顔',
+      'ほっとした表情','のほほんとした顔','楽しそうにはしゃぐ顔','明るく元気な笑顔',
+      '口角だけ上げたクールな笑み','目を細めた優しい笑顔','ウィンク','ニヤリと笑う',
+    ],
+    'ネガティブ・感情的': [
+      '泣いている顔','涙をこらえた顔','うつむいた悲しい顔','今にも泣きそうな顔',
+      '唇を噛んでいる顔','悔しさをにじませた顔','絶望した表情','心細そうな顔',
+      '寂しそうな横顔','消え入りそうなはかない表情','後悔で項垂れた顔','恥ずかしくて俯く顔',
+    ],
+    '強さ・怒り': [
+      '睨みつける顔','怒りで眉を寄せた顔','静かな怒りをたたえた表情',
+      '威圧するような眼差し','歯を食いしばった顔','口をへの字に結んだ顔',
+      '不敵な笑み','凄みのある表情','強がった顔','腹が立っているのを隠す顔',
+    ],
+    '照れ・驚き': [
+      '頬を染めた照れ顔','目を見開いた驚き顔','びっくりして固まる顔',
+      '恥ずかしさで顔を隠す','赤面してそっぽを向く','照れて笑う',
+      'ぽかんとした顔','信じられないという表情','目をまん丸にした驚き',
+      '予想外でうろたえる顔','驚きで言葉を失った顔',
+    ],
+    'クール・無表情': [
+      '無表情','冷静な表情','感情を読めない無表情','じっと見つめる眼差し',
+      '目だけが笑っている顔','口を固く結んだ表情','冷ややかな視線',
+      'ポーカーフェイス','考えながら横を向く顔','遠くを見つめる瞳',
+      '興味がなさそうな表情','淡々とした顔',
+    ],
+    '穏やか・柔らか': [
+      'うとうとした顔','目を細めたとろんとした表情','ぼんやりとした顔',
+      '夢見るような表情','眠そうな半目','ゆったりとした微笑み',
+      'ほんわかした顔','やわらかく目を閉じた顔','うれしそうにほおを染める',
+      '安心しきった顔','心地よさそうな表情',
+    ],
+    '思慮・内面': [
+      '考え込んでいる顔','遠い目で物思いにふける','眉を寄せて悩む顔',
+      '口に手を当てて考える顔','視線を落とした憂いの表情','複雑な心境の顔',
+      '何かを思い出した顔','決意を固める表情','覚悟を決めた瞳',
+      '痛みをこらえる顔','本音を隠した表情','言いたいことがある顔',
+    ],
+    'シチュエーション・特殊': [
+      '目が合った瞬間の顔','視線が絡んだ一瞬','焦って目を泳がせる',
+      '疲れ果てた顔','勝利の喜びで叫ぶ顔','プライドをくすぐられた顔',
+      '初めてのことに戸惑う顔','虚勢を張った顔','泣きながら笑う顔',
+      '微妙な心境の苦笑い','恐怖を感じた顔','驚きと喜びが混ざった顔',
+    ],
+  },
+  gijinka: {
+    'スイーツ・お菓子': [
+      'ショートケーキ','チョコレートケーキ','モンブラン','シュークリーム','マカロン',
+      'プリン','パフェ','クレープ','どら焼き','和菓子（大福）','和菓子（羊羹）',
+      'わたあめ','キャンディポップ','ロリポップ','チュロス','ワッフル',
+      'アイスクリーム','ソフトクリーム','かき氷','ティラミス','チーズケーキ',
+      'エクレア','タルト','ドーナツ','クッキー','マフィン','スコーン',
+      'バウムクーヘン','抹茶パフェ','苺のタルト','チョコレートフォンデュ',
+      'キャラメルプリン','レモンケーキ','ブルーベリーチーズケーキ','桜餅',
+    ],
+    '果物・野菜': [
+      '苺','さくらんぼ','ブルーベリー','ぶどう','りんご','梨','桃','スイカ',
+      'メロン','オレンジ','レモン','ライム','マンゴー','パイナップル','バナナ',
+      'キウイ','パッションフルーツ','ラズベリー','ドラゴンフルーツ','いちじく',
+      'ひまわり（種）','トウモロコシ','かぼちゃ','ブロッコリー','薔薇（花びら）',
+    ],
+    '飲み物': [
+      'コーヒー','抹茶ラテ','ほうじ茶','紅茶（ダージリン）','カモミールティー',
+      'バブルティー（タピオカ）','ソーダ水','レモネード','ホットチョコレート',
+      '日本酒','ワイン（赤）','ワイン（白）','シャンパン','クリームソーダ',
+      'フルーツジュース','牛乳','甘酒','桜茶','カクテル（ブルーラグーン）',
+    ],
+    '動物・生き物': [
+      '猫','犬','ウサギ','キツネ','狼','鹿','クジャク','フクロウ','白鳥',
+      '龍','フェニックス','ユニコーン','人魚','天使','悪魔','妖狐',
+      '蝶','ホタル','クラゲ','シャチ','北極熊','パンダ','虎','ライオン',
+    ],
+    '自然・季節': [
+      '桜','紅葉','雪の結晶','入道雲','虹','月（満月）','星（流星）','霧',
+      '春雨','夕焼け','オーロラ','嵐','台風','雷','蜃気楼','春風',
+      '朝露','霜柱','吹雪','波','炎','氷河','砂嵐',
+    ],
+    '魔法・ファンタジー': [
+      '魔法陣','魔法の薬','星の砂','妖精の粉','月の雫','闇の結晶','光の宝珠',
+      '魔女の帽子','錬金術の炉','占いの水晶玉','タロットカード','魔法書',
+      '呪いの鏡','幸運のクローバー','封印の印章','時計塔','夢の扉',
+    ],
+    '色・概念': [
+      '白（純白・無垢）','黒（暗黒・神秘）','赤（情熱・怒り）','青（冷静・孤独）',
+      '黄（希望・明るさ）','緑（自然・再生）','紫（高貴・神秘）','虹色（多様性）',
+      '音楽（メロディー）','沈黙','記憶','夢','孤独','喜び','涙',
+    ],
+  },
+  items: {
+    'アクセサリー': [
+      'リボン（大きな蝶結び）','リボン（細め・首元）','チョーカー','ネックレス（パール）',
+      'ネックレス（十字架）','ネックレス（月と星）','ペンダント（宝石）','ブローチ',
+      'イヤリング（雫型）','イヤリング（星型）','ピアス（フープ）','ヘアピン',
+      'カチューシャ（花飾り）','カチューシャ（リボン）','ヘッドドレス','冠・ティアラ',
+      'ブレスレット（チェーン）','ブレスレット（ビーズ）','アンクレット','指輪（魔法の）',
+      '指輪（婚約指輪）','腕時計（アンティーク）','懐中時計','腕輪（翡翠）',
+    ],
+    '持ち物・手持ちアイテム': [
+      '傘（蛇の目傘）','傘（透明ビニール傘）','日傘（レース）','扇子','うちわ',
+      '花束（薔薇）','花束（野花）','一輪の花','花かご','紙袋（ショッピング）',
+      '本（古い革表紙）','本（魔法書）','日記帳','手紙・封筒','巻物',
+      'ランタン（アンティーク）','蝋燭','懐中電灯','宝石箱','小瓶（魔法薬）',
+      'ぬいぐるみ','テディベア','人形','マスコット','シャボン玉',
+      'バスケット','籠（花入り）','風呂敷包み','風船','紙飛行機',
+      'カメラ（フィルム）','双眼鏡','虫眼鏡','地図','コンパス',
+      'ステッキ（杖）','魔法の杖','剣（細身）','盾','弓矢',
+    ],
+    '楽器': [
+      'バイオリン','チェロ','フルート','ピッコロ','クラリネット','オーボエ',
+      'トランペット','ホルン','ハープ','ギター（アコースティック）','ギター（エレキ）',
+      '三味線','琵琶','笛（篠笛）','太鼓','シンバル','ピアノ（鍵盤のみ）',
+      'オルゴール','手回しオルゴール','鈴（クリスマス）','タンバリン',
+    ],
+    '帽子・かぶりもの': [
+      '魔女の帽子','ハット（つばが広め）','ベレー帽','ニット帽','軍帽',
+      '花冠','葉の冠','角（悪魔）','天使の輪','うさ耳カチューシャ',
+      '猫耳カチューシャ','角帽（学帽）','シルクハット','ボンネット（アンティーク）',
+      '狐の耳','髪飾り（大きな花）','羽根飾り',
+    ],
+    '服飾小物': [
+      'マント（黒）','マント（赤）','ケープ','ポンチョ','スカーフ','マフラー',
+      '手袋（レース）','手袋（革）','ミトン','ソックス（ニーハイ）',
+      'ガーター','ベルト（幅広）','エプロン','前掛け','サッシュベルト',
+      'ポーチ（小さなバッグ）','ショルダーバッグ','ミニトート','リュック','巾着',
+    ],
+    '魔法・神秘アイテム': [
+      '魔法陣の書','魔法の鏡','占いの水晶球','タロットカード','魔法のステッキ',
+      '星の砂時計','月の雫の瓶','封印の羽根ペン','呪いのリング','守護のお守り',
+      '霊符','聖杯','秘薬の小瓶','精霊石','竜の鱗（アクセ）','天使の羽根',
+      '悪魔の翼（小道具）','鍵（古い骸骨鍵）','宝の地図','魔法のランプ',
+    ],
+  },
+  odai: [
+    '「傘を持たない少女と土砂降りの雨」','「廃墟に咲く一輪の花と旅人」','「月光の図書館で本と話す魔法使い」','「巨大生物の背中に乗った子ども」','「最後の電車を見送る少年」','「砂漠のオアシスで星を眺めるふたり」','「鏡の中にだけいる謎の存在」','「世界の終わりの日に笑っているひと」','「記憶を食べる生き物と少女」','「時計が止まったまちで踊り続ける人々」',
+    '「放課後の教室でひとり残った少女」','「屋上で弁当を食べながら空を見る」','「夏休み最後の日の花火」','「告白しそこねた帰り道」','「卒業式の日に気づいた片想い」','「深夜のファミレスで語り合う仲間たち」','「部活のユニフォームで泣いている背中」','「自転車の二人乗りで見た夕焼け」','「転校初日に声をかけてくれたひと」','「雨の日、相合い傘で帰った記憶」','「古い写真の中に見知らぬ笑顔」','「祖父母の家の縁側で聞いた昔話」','「幼馴染が遠くへ引っ越す前の夜」','「文化祭の準備で徹夜した最後の夜」','「受験前夜に空を見上げた」','「修学旅行の夜、布団の中で話したこと」','「部活を引退した日の帰り道」','「好きな曲を好きな人に教えた日」',
+    '「龍と少女が空の果てで交わした約束」','「魔法が使えなくなった魔女の最後の夜」','「天使と悪魔が人間界で同居する話」','「海の底に沈んだ古い王国の姫」','「星を売り歩く行商人と孤独な王子」','「神様と人間の子どもが友達になる話」','「呪いで動けなくなった騎士と魔法使い」','「夢の中にしか現れない謎の少年」','「羽を失った天使と羽を持つ少女」','「魔王を倒した勇者が次の日に何をするか」','「竜が人間の言葉を学ぼうとする話」','「吸血鬼と朝日を見たい少女」','「予言に縛られた姫と予言を信じない騎士」','「封印を解かれた神様の戸惑い」','「人魚が足を手に入れた初めての一日」',
+    '「記憶を売買できる世界の最後の思い出」','「AIと人間が恋に落ちた瞬間」','「タイムトラベルで会いに来た未来の自分」','「宇宙船の中でひとり残された少女」','「感情を持ってしまったロボットの日記」','「並行世界で出会った自分のなりたかった姿」','「滅びゆく星で最後の人類が絵を描く」','「記憶を消す薬を飲んだ翌朝」','「バーチャルの君と現実の僕」','「ロボットが泣いた理由を誰も知らない」','「宇宙人に日本語を教える話」',
+    '「振り返ると増えていく影」','「笑えなくなった道化師の最後のステージ」','「人形の目が動いた気がした深夜」','「誰にも見えない幽霊と仲良くなった子」','「蜘蛛の巣に包まれた眠り姫」','「廃病院の最上階で聞こえた子守唄」','「呪われた絵の中で生きている少女」','「夜な夜な起き出す人形」','「毎晩夢に出てくる顔を知らない人物」',
+    '「色のない世界でひとつだけ光る花」','「声を失った歌姫と耳が聴こえない少年」','「忘れられた神様と覚えているひとりの子ども」','「地図に載っていない島でひとりで生きる老人」','「言葉の代わりに花を渡す文化の世界」','「雨粒ひとつひとつに別の世界が映っている」','「「さようなら」が言えなかった最後の日」','「影が先に動き出す不思議な朝」','「本の中に迷い込んでしまった少年」','「音楽が色として見える世界に生きる少女」','「星を集める仕事をするひとの一日」','「永遠に終わらない春の中に閉じ込められた」','「誰かが描いた絵の中で目覚めた少女」','「消えかけた記憶の中にだけある笑顔」','「嘘をついた分だけ透明になっていく世界」','「涙が宝石になって地面に残る世界」','「何度生まれ変わっても同じ場所で出会うふたり」',
+    '「お正月の神社で出会った見知らぬ少女」','「バレンタインに渡せなかったチョコの行方」','「桜の木の下で毎年会う約束」','「七夕の夜に天の川を渡ろうとした」','「お盆に帰ってきた懐かしい人」','「ハロウィンの夜に本物の幽霊と仮装を競う」','「クリスマスイブに誰もいない街を歩く」','「大晦日、年が変わる瞬間に消えてしまう君」',
+    '「捨て猫を拾った雨の夜」','「白鷺と話せる少女の秘密」','「空を泳ぐ鯨と少年の友情」','「狐に化かされた侍の一日」','「犬になってしまった魔法使い」','「ひとりだけ花の言葉が聞こえる少女」',
+  ],
+};
+
+/* ── 衣装カテゴリ定義（チェックリスト用）── */
+const OUTFIT_CATEGORIES = [
+  { label:'🏫 制服・学校', names:['セーラー服（夏）','セーラー服（冬）','セーラー服（カスタム）','ブレザー制服','学ランアレンジ','詰め襟学ラン','体操着','ブルマ（レトロ）','ジャージ（部活）','水着＋パーカー','応援団服','吹奏楽の制服','吹奏楽の制服（男性）','バトン部衣装','チアリーダー服','ブレザー＋ネクタイ','スーパーのエプロン（バイト）','カフェ店員服','バンカラ学ラン'] },
+  { label:'👗 ドレス・フォーマル', names:['ウェディングドレス','黒のイブニングドレス','パーティードレス','ゴシックドレス','ナイトドレス','マーメイドドレス','オフショルダードレス','コルセットドレス','プリンセスドレス（ふわふわ）','スレンダードレス（スリット入り）','Aラインドレス','ケープドレス','ハイネックドレス','レースドレス（白）','レースドレス（黒）','ミニドレス（パーティー）','ロングドレス（光沢）','ヴィクトリアンドレス','アンティークドレス'] },
+  { label:'🤵 スーツ・紳士服', names:['タキシード','燕尾服','スーツ（パンツ）','スーツ（スカート）','スリーピーススーツ','モーニングコート','カジュアルスーツ','探偵コート＋ハット','ビクトリア朝の紳士服'] },
+  { label:'👘 和装', names:['着物（振袖）','着物（小紋）','着物（大人）','浴衣','袴（卒業式）','袴（袴パンツ）','巫女装束','十二単風','花魁（ド派手な打掛）','紋付羽織袴','狩衣（平安男性）','束帯（平安貴族）','甚平','作務衣','半纏・法被','武者鎧','忍者装束'] },
+  { label:'🧙 ファンタジー・中世', names:['ファンタジー鎧（重装）','ファンタジー鎧（軽装）','プレートアーマー（全身）','ダークナイト鎧','エルフの狩衣','聖女の白装束','神官装束','精霊使いの薄衣','海賊衣装','騎士団服','錬金術師のコート','吸血鬼の夜会服','魔王のマント','妖精の羽付き衣','天使の白ローブ','悪魔の衣装','人魚の衣装','竜騎士の鎧','旅人のマント（ぼろ）','古代神殿の巫女服','砂漠の隊商スタイル','雪国の毛皮コート','ステンドグラス風ドレス','星空柄のローブ','花をまとったドレス','水の精霊の衣','魔法使いローブ（黒）','魔法使いローブ（白）','魔法使いローブ（カラフル）'] },
+  { label:'🎀 コスプレ・特殊', names:['メイド服（クラシック）','メイド服（ゴシック）','メイド服（カフェ風）','メイド服（ミリタリー）','バニースーツ（黒）','バニースーツ（白）','バニースーツ（カラー）','バニースーツ（ミニ丈）','ロリータ（スイート）','ロリータ（ゴシック）','ロリータ（クラシック）','ロリータ（和ロリ）','ナース服','看護師服（現代）','スチュワーデス制服','魔法少女コスチューム','プリキュア風コスチューム','ヒーロースーツ（タイツ型）','闘技場の戦士コスチューム','アリーナコスチューム（露出多め）','サーカス団員衣装'] },
+  { label:'👕 現代ファッション', names:['カジュアルストリート','オーバーサイズパーカー','クロップドパーカー','デニムジャケット','デニムオーバーオール','レザージャケット','ライダースジャケット','スポーツウェア','ランニングウェア','アスレジャー（スポーツ×カジュアル）','マウンテンパーカー','トレンチコート','チェスターコート','ダウンジャケット','ビッグシルエットコート','ファーコート','ニットセーター（太め）','タートルネックニット','クロップドトップス＋ハイウエスト','サロペット（デニム）','プリーツスカート＋ブラウス','ビスチェ＋フレアスカート','ミリタリージャケット＋ミニスカ'] },
+  { label:'🌍 エスニック・民族衣装', names:['チャイナドレス（スリット深め）','チャイナドレス（ショート）','アラビアンナイト風','アラビアンナイト風（男性）','インド風サリー','タイの民族衣装','ハワイアンドレス（アロハ）','アフリカン柄ワンピース','スコティッシュタータン','フラメンコドレス','フラダンス衣装','ヒッポドローム（古代ローマ）'] },
+  { label:'🎸 サブカル・ステージ', names:['サイバーパンクスーツ','サイバーパンクスーツ（男女共通）','サイバーパンク（露出多め）','テクノスーツ（未来型）','スチームパンク（コルセット＋ゴーグル）','スチームパンク（飛行士）','スチームパンク（混合）','ゴスパンク','パンクロック（スタッズ多め）','ビジュアル系バンドマン衣装','ダンサー衣装（HipHop）','ダンサー衣装（ジャズ）','ダンサー衣装（ボールルーム）','バレエ衣装（チュチュ）','バレエ衣装（コンテンポラリー）','体操選手レオタード','フィギュアスケート衣装','テニスウェア'] },
+  { label:'💼 職業・制服', names:['マリン系セーラー','海軍士官服','軍服（現代）','軍服（レトロWW2風）','警察官の制服','消防士の制服','パイロット制服','ドクター白衣','獣医コート','ドクター白衣'] },
+  { label:'👙 水着・ランジェリー', names:['水着（ビキニ）','水着（ワンピース）','水着（競泳）','ラッシュガード＋水着','水泳競技水着','セクシーランジェリー（黒レース）','ガーターベルトセット','コルセット（下着風）'] },
+  { label:'🚀 SF・未来', names:['未来の宇宙服','宇宙飛行士スーツ','アンドロイドスーツ','エイリアン風コスチューム','ホログラムスーツ','ナノスーツ（全身タイツ型）'] },
+];
+/* ── 髪型カテゴリ定義（チェックリスト用）── */
+const HAIR_CATEGORIES = [
+  { label:'✂️ ショート', names:['ショートボブ','ひし形ボブ','外はねボブ','内巻きボブ','Cカールボブ','ぱっつん前髪ショート','ピクシーカット','耳出しショート','ベリーショート','スポーツショート','センターパート短髪','ウルフカット','マッシュルームカット','刈り上げアシメ','ツーブロック','アンダーカット','モホーク風','片側だけ刈り上げ','サイドを刈り上げたロック系','前髪だけ長いショート','ヘビーバング（重め前髪）'] },
+  { label:'〰️ ミディアム', names:['鎖骨ラインのボブ','外はねミディアム','内巻きミディアム','ゆるふわミディアム','くせ毛風ミディアム','サイドアップミディアム','ひとつ結びミディアム','ミディアムパーマ','ミディアムストレート','ミディアムウェーブ'] },
+  { label:'🌊 ロング', names:['ロングストレート','ロングストレート（男性）','ウェーブロング','ロングウェーブ（男性）','巻き髪ロング','ゆるふわロング','くせ毛風ロング','パーマロング','毛先だけカールロング','ぱっつん前髪ロング','ロングヘア＋パーマ（ファッション）','後ろで束ねたロング'] },
+  { label:'🎀 アップ・まとめ髪', names:['ツインテール（高め）','ツインテール（低め）','ドリルツインテール','ツインお団子','高めポニーテール','低めポニーテール','ローポニーテール','サイドテール','おさげ・三つ編み','フィッシュボーン三つ編み','お団子（きっちり）','お団子（ゆるふわ）','ダブルお団子','お団子（男性・高め）','ゆるくまとめたお団子','お姫様巻き','天使の輪ハーフアップ','ルーズアップ','カチューシャ留め','編み込みアップ','シニョン','くるりんぱハーフアップ','ハーフアップ＋カール','ヘアバンドでまとめた','片サイドだけ耳かけ','編み込みたっぷり','花を飾った髪','リボンで束ねた髪'] },
+  { label:'🌀 特殊・個性的', names:['乱れた無造作','寝癖ボサボサ','フードで半分隠れた髪','ドレッドロックス','コーンロウ'] },
+];
+
+/* ── カラー系統グループ ── */
+const COLOR_GROUPS = [
+  { label:'🌸 ピンク・赤系', names:['桜ピンク','珊瑚ピンク','灰桜','牡丹色','薔薇色','深緋','ルビーレッド','茜色','紅梅','苺色','朱色','撫子色','鴇色'] },
+  { label:'🍊 オレンジ・黄系', names:['夕焼けオレンジ','橙','ゴールド','琥珀','山吹色','蜂蜜色','薄黄','向日葵','柑子色','黄土色'] },
+  { label:'🌿 グリーン系', names:['抹茶グリーン','若草色','萌黄','鶯色','エメラルド','孔雀緑','深緑','薄緑','苔色','翡翠','薄荷','緑青'] },
+  { label:'🩵 ブルー系', names:['水色','コバルトブルー','瑠璃色','夜空ネイビー','鉄紺','空色','群青','青磁','ターコイズ','浅葱','インディゴ','藍色','氷色'] },
+  { label:'💜 パープル系', names:['ラベンダー','藤色','紫紺','葡萄色','藤紫','菖蒲色','桔梗色','ライラック','紫水晶','マゼンタ'] },
+  { label:'🤍 白・グレー・黒系', names:['月白','薄墨','鈍色','チャコール','漆黒×金','純白','オフホワイト','パールグレー','スレートグレー','鉛色'] },
+  { label:'🍂 茶・ベージュ系', names:['小麦色','キャメル','チョコレート','マロン','ベージュ','砂色','ローズウッド','テラコッタ'] },
+];
+
+let savedIdeas = JSON.parse(localStorage.getItem('illusio_saved') || '[]');
+let currentIdea = {};
+let selectedColorIdx = 0;
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pickN(arr, n) { const copy = [...arr], res = []; for (let i = 0; i < n && copy.length; i++) res.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]); return res; }
+function makeCard(label, value, acc, sub='') { return `<div class="idea-card ${acc}"><div class="card-label">${label}</div><div class="card-value">${value}</div>${sub?`<div class="card-sub">${sub}</div>`:''}</div>`; }
+
+/* ── Tab ── */
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const ids=['random','pose','comp','outfit','hair','color','gijinka','items','facial','odai','saved'];
+    t.classList.toggle('active',ids[i]===id);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if (id==='saved')   renderSaved();
+  if (id==='color')   renderPalette();
+  if (id==='gijinka') { randomGijinka(); renderGijinkaChecklist(); }
+  if (id==='items')   { randomItems();   renderItemsChecklist(); }
+  if (id==='facial')  randomFacial();
+  if (id==='outfit')  randomOutfit();
+  if (id==='hair')    randomHair();
+  if (id==='comp')    randomComp();
+}
+
+/* ── 人数フィルター（構図）── */
+let currentPersonCount = 'solo';
+
+function getCompositionPool() {
+  if (currentPersonCount === 'any') {
+    return [...DATA.composition.solo, ...DATA.composition.duo,
+            ...DATA.composition.multi, ...DATA.composition.any];
+  }
+  return [...DATA.composition[currentPersonCount], ...DATA.composition.any];
+}
+
+function setPersonCount(count, el) {
+  currentPersonCount = count;
+  document.querySelectorAll('.person-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.count === count);
+  });
+  // 構図タブが開いていれば更新
+  const compCards = document.getElementById('comp-cards');
+  if (compCards && compCards.innerHTML) randomComp();
+  if (document.getElementById('comp-checklist-mode')?.style.display !== 'none') renderCompChecklist();
+}
+
+/* ── 構図タブ ── */
+let compChecked = new Set();
+
+function randomComp() {
+  const pool = getCompositionPool();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('comp-cards');
+  if (el) el.innerHTML = picks.map(v => makeCard('構図', v, 'acc-teal')).join('');
+}
+
+function switchCompMode(mode) {
+  document.getElementById('comp-mode-btn-random').classList.toggle('active', mode === 'random');
+  document.getElementById('comp-mode-btn-checklist').classList.toggle('active', mode === 'checklist');
+  document.getElementById('comp-random-mode').style.display = mode === 'random' ? '' : 'none';
+  document.getElementById('comp-checklist-mode').style.display = mode === 'checklist' ? '' : 'none';
+  if (mode === 'checklist') renderCompChecklist();
+}
+
+function renderCompChecklist() {
+  const wrap = document.getElementById('comp-checklist-wrap');
+  if (!wrap) return;
+  const groups = {
+    '🧍 1人向け': DATA.composition.solo,
+    '👫 2人向け': DATA.composition.duo,
+    '👥 複数人向け': DATA.composition.multi,
+    '✨ 汎用（人数問わず）': DATA.composition.any,
+  };
+  let html = '';
+  Object.entries(groups).forEach(([label, items]) => {
+    html += `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">${label}
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectCompGroup('${label}',true)">全選択</button>
+          <button onclick="selectCompGroup('${label}',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">
+        ${items.map(v => `<span class="cat-chip${compChecked.has(v)?' checked':''}" onclick="toggleCompChip('${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+  updateCompCount();
+}
+
+function toggleCompChip(val, el) {
+  compChecked.has(val) ? compChecked.delete(val) : compChecked.add(val);
+  el.classList.toggle('checked');
+  updateCompCount();
+}
+
+function selectCompGroup(label, on) {
+  const map = {
+    '🧍 1人向け': DATA.composition.solo,
+    '👫 2人向け': DATA.composition.duo,
+    '👥 複数人向け': DATA.composition.multi,
+    '✨ 汎用（人数問わず）': DATA.composition.any,
+  };
+  const items = map[label] || [];
+  items.forEach(v => on ? compChecked.add(v) : compChecked.delete(v));
+  renderCompChecklist();
+}
+
+function updateCompCount() {
+  const el = document.getElementById('comp-check-count');
+  if (el) el.textContent = compChecked.size ? `${compChecked.size}件選択中` : '0件選択（全件対象）';
+}
+
+function shuffleCompChecklist() {
+  const pool = compChecked.size > 0 ? [...compChecked] : getCompositionPool();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('comp-checked-cards');
+  el.innerHTML = picks.map(v => makeCard('構図', v, 'acc-teal')).join('');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── 性別フィルター ── */
+let currentGender = 'female';
+
+function getOutfitPool() {
+  const base = currentGender === 'both'
+    ? [...DATA.outfit.female, ...DATA.outfit.male, ...DATA.outfit.both]
+    : [...DATA.outfit[currentGender], ...DATA.outfit.both];
+  return [...base, ...(customData.outfit || [])];
+}
+
+function getHairPool() {
+  const base = currentGender === 'both'
+    ? [...DATA.hair.female, ...DATA.hair.male, ...DATA.hair.both]
+    : [...DATA.hair[currentGender], ...DATA.hair.both];
+  return [...base, ...(customData.hair || [])];
+}
+
+function setGender(gender, el) {
+  currentGender = gender;
+  document.querySelectorAll('.gender-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.gender === gender);
+  });
+  // 表示中のカードを更新
+  const outfitCards = document.getElementById('outfit-cards');
+  if (outfitCards && outfitCards.innerHTML) randomOutfit();
+  const hairCards = document.getElementById('hair-cards');
+  if (hairCards && hairCards.innerHTML) randomHair();
+  // チェックリストが開いていれば更新
+  if (document.getElementById('outfit-checklist-mode')?.style.display !== 'none') renderCatChecklist('outfit');
+  if (document.getElementById('hair-checklist-mode')?.style.display !== 'none') renderCatChecklist('hair');
+}
+
+/* ── 衣装 ── */
+function randomOutfit() {
+  const pool = getOutfitPool();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('outfit-cards');
+  if (el) el.innerHTML = picks.map(v => makeCard('衣装', v, 'acc-gold')).join('');
+}
+
+/* ── 髪型 ── */
+function randomHair() {
+  const pool = getHairPool();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('hair-cards');
+  if (el) el.innerHTML = picks.map(v => makeCard('髪型', v, 'acc-ink')).join('');
+}
+
+/* ── 表情 ── */
+let facialChecked = new Set();
+
+function getAllFacial() {
+  return Object.values(DATA.facial).flat().concat(customData.facial || []);
+}
+
+function randomFacial() {
+  const pool = facialChecked.size > 0 ? [...facialChecked] : getAllFacial();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('facial-cards');
+  if (el) el.innerHTML = picks.map(p => makeCard('表情', p, 'acc-red')).join('');
+}
+
+function switchFacialMode(mode) {
+  document.getElementById('facial-mode-btn-random').classList.toggle('active', mode === 'random');
+  document.getElementById('facial-mode-btn-checklist').classList.toggle('active', mode === 'checklist');
+  document.getElementById('facial-random-mode').style.display = mode === 'random' ? '' : 'none';
+  document.getElementById('facial-checklist-mode').style.display = mode === 'checklist' ? '' : 'none';
+  if (mode === 'checklist') renderFacialChecklist();
+}
+
+function renderFacialChecklist() {
+  const wrap = document.getElementById('facial-checklist-wrap');
+  if (!wrap) return;
+  let html = '';
+  Object.keys(DATA.facial).forEach(group => {
+    const items = DATA.facial[group];
+    html += `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">${group}
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectFacialGroup('${group}',true)">全選択</button>
+          <button onclick="selectFacialGroup('${group}',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">
+        ${items.map(v => `<span class="cat-chip${facialChecked.has(v)?' checked':''}" onclick="toggleFacialChip('${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  if ((customData.facial || []).length) {
+    const customs = customData.facial;
+    html += `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">✏️ オリジナル
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectFacialGroup('__custom__',true)">全選択</button>
+          <button onclick="selectFacialGroup('__custom__',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">
+        ${customs.map(v => `<span class="cat-chip${facialChecked.has(v)?' checked':''}" onclick="toggleFacialChip('${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  wrap.innerHTML = html;
+  updateFacialCount();
+}
+
+function toggleFacialChip(val, el) {
+  facialChecked.has(val) ? facialChecked.delete(val) : facialChecked.add(val);
+  el.classList.toggle('checked');
+  updateFacialCount();
+}
+
+function selectFacialGroup(group, on) {
+  const items = group === '__custom__' ? (customData.facial || []) : (DATA.facial[group] || []);
+  items.forEach(v => on ? facialChecked.add(v) : facialChecked.delete(v));
+  renderFacialChecklist();
+}
+
+function updateFacialCount() {
+  const el = document.getElementById('facial-check-count');
+  if (el) el.textContent = facialChecked.size ? `${facialChecked.size}件選択中` : '0件選択（全件対象）';
+}
+
+function shuffleFacialChecklist() {
+  const pool = facialChecked.size > 0 ? [...facialChecked] : getAllFacial();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('facial-checked-cards');
+  if (el) {
+    el.innerHTML = picks.map(p => makeCard('表情', p, 'acc-red')).join('');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+let gijinkaChecked = new Set();
+
+function getAllGijinka() {
+  return Object.values(DATA.gijinka).flat().concat(customData.gijinka || []);
+}
+
+function randomGijinka() {
+  const pool = gijinkaChecked.size > 0 ? [...gijinkaChecked] : getAllGijinka();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  document.getElementById('gijinka-cards').innerHTML = picks.map(p => makeCard('擬人化テーマ', p, 'acc-purple')).join('');
+}
+
+function renderGijinkaChecklist() {
+  const wrap = document.getElementById('gijinka-checklist-wrap');
+  if (!wrap) return;
+  let html = '';
+  const allGroups = {...DATA.gijinka};
+  if ((customData.gijinka || []).length) allGroups['オリジナル'] = customData.gijinka;
+  Object.keys(allGroups).forEach(group => {
+    const items = allGroups[group];
+    html += `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">${group}
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectGijinkaGroup('${group}',true)">全選択</button>
+          <button onclick="selectGijinkaGroup('${group}',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">
+        ${items.map(v => `<span class="cat-chip${gijinkaChecked.has(v)?' checked':''}" onclick="toggleGijinkaChip('${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+  updateGijinkaCount();
+}
+
+function toggleGijinkaChip(val, el) {
+  gijinkaChecked.has(val) ? gijinkaChecked.delete(val) : gijinkaChecked.add(val);
+  el.classList.toggle('checked');
+  updateGijinkaCount();
+}
+
+function selectGijinkaGroup(group, on) {
+  const items = DATA.gijinka[group] || (group === 'オリジナル' ? customData.gijinka : []);
+  items.forEach(v => on ? gijinkaChecked.add(v) : gijinkaChecked.delete(v));
+  renderGijinkaChecklist();
+}
+
+function updateGijinkaCount() {
+  const el = document.getElementById('gijinka-check-count');
+  if (el) el.textContent = gijinkaChecked.size ? `${gijinkaChecked.size}件選択中` : '0件選択（全件対象）';
+}
+
+function shuffleGijinkaChecklist() {
+  const pool = gijinkaChecked.size > 0 ? [...gijinkaChecked] : getAllGijinka();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('gijinka-checked-cards');
+  el.innerHTML = picks.map(p => makeCard('擬人化テーマ', p, 'acc-purple')).join('');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function switchCatMode(cat, mode) {
+  if (cat === 'gijinka') {
+    document.getElementById('gijinka-mode-btn-random').classList.toggle('active', mode==='random');
+    document.getElementById('gijinka-mode-btn-checklist').classList.toggle('active', mode==='checklist');
+    document.getElementById('gijinka-random-mode').style.display = mode==='random'?'':'none';
+    document.getElementById('gijinka-checklist-mode').style.display = mode==='checklist'?'':'none';
+    if (mode==='checklist') renderGijinkaChecklist();
+    return;
+  }
+  if (cat === 'items') {
+    document.getElementById('items-mode-btn-random').classList.toggle('active', mode==='random');
+    document.getElementById('items-mode-btn-checklist').classList.toggle('active', mode==='checklist');
+    document.getElementById('items-random-mode').style.display = mode==='random'?'':'none';
+    document.getElementById('items-checklist-mode').style.display = mode==='checklist'?'':'none';
+    if (mode==='checklist') renderItemsChecklist();
+    return;
+  }
+  // 既存のpose/outfit/color対応
+  document.getElementById(`${cat}-mode-btn-random`).classList.toggle('active', mode === 'random');
+  document.getElementById(`${cat}-mode-btn-checklist`).classList.toggle('active', mode === 'checklist');
+  document.getElementById(`${cat}-random-mode`).style.display = mode === 'random' ? '' : 'none';
+  document.getElementById(`${cat}-checklist-mode`).style.display = mode === 'checklist' ? '' : 'none';
+  if (mode === 'checklist') renderCatChecklist(cat);
+}
+
+/* ── 小物 ── */
+let itemsChecked = new Set();
+
+function getAllItems() {
+  return Object.values(DATA.items).flat().concat(customData.items || []);
+}
+
+function randomItems() {
+  const pool = itemsChecked.size > 0 ? [...itemsChecked] : getAllItems();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  document.getElementById('items-cards').innerHTML = picks.map(p => makeCard('小物', p, 'acc-gold')).join('');
+}
+
+function renderItemsChecklist() {
+  const wrap = document.getElementById('items-checklist-wrap');
+  if (!wrap) return;
+  let html = '';
+  const allGroups = {...DATA.items};
+  if ((customData.items || []).length) allGroups['オリジナル'] = customData.items;
+  Object.keys(allGroups).forEach(group => {
+    const items = allGroups[group];
+    html += `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">${group}
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectItemsGroup('${group}',true)">全選択</button>
+          <button onclick="selectItemsGroup('${group}',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">
+        ${items.map(v => `<span class="cat-chip${itemsChecked.has(v)?' checked':''}" onclick="toggleItemsChip('${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+  updateItemsCount();
+}
+
+function toggleItemsChip(val, el) {
+  itemsChecked.has(val) ? itemsChecked.delete(val) : itemsChecked.add(val);
+  el.classList.toggle('checked');
+  updateItemsCount();
+}
+
+function selectItemsGroup(group, on) {
+  const items = DATA.items[group] || (group === 'オリジナル' ? customData.items : []);
+  items.forEach(v => on ? itemsChecked.add(v) : itemsChecked.delete(v));
+  renderItemsChecklist();
+}
+
+function updateItemsCount() {
+  const el = document.getElementById('items-check-count');
+  if (el) el.textContent = itemsChecked.size ? `${itemsChecked.size}件選択中` : '0件選択（全件対象）';
+}
+
+function shuffleItemsChecklist() {
+  const pool = itemsChecked.size > 0 ? [...itemsChecked] : getAllItems();
+  const picks = pickN(pool, Math.min(3, pool.length));
+  const el = document.getElementById('items-checked-cards');
+  el.innerHTML = picks.map(p => makeCard('小物', p, 'acc-gold')).join('');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+const PICKER_META = {
+  theme:       {label:'テーマ',       cardId:'card-theme',   valId:'r-theme'},
+  composition: {label:'構図',         cardId:'card-comp',    valId:'r-comp'},
+  pose:        {label:'ポーズ',       cardId:'card-pose',    valId:'r-pose'},
+  outfit:      {label:'衣装',         cardId:'card-outfit',  valId:'r-outfit'},
+  hair:        {label:'髪型',         cardId:'card-hair',    valId:'r-hair'},
+  color:       {label:'ベースカラー', cardId:'card-color',   valId:'r-color'},
+  gijinka:     {label:'擬人化',       cardId:'card-gijinka', valId:'r-gijinka'},
+  items:       {label:'小物',         cardId:'card-items',   valId:'r-items'},
+  facial:      {label:'表情',         cardId:'card-facial',  valId:'r-facial'},
+};
+let pickerCat = null;
+function openPicker(cat) {
+  pickerCat = cat;
+  document.getElementById('picker-title').textContent = PICKER_META[cat].label + ' を選択';
+  document.getElementById('picker-search').value = '';
+  buildPickerList(cat,'');
+  document.getElementById('picker-overlay').classList.add('open');
+  document.getElementById('picker-drawer').classList.add('open');
+  document.getElementById('picker-search').focus();
+}
+function closePicker() {
+  document.getElementById('picker-overlay').classList.remove('open');
+  document.getElementById('picker-drawer').classList.remove('open');
+  pickerCat = null;
+}
+function filterPicker() { buildPickerList(pickerCat, document.getElementById('picker-search').value); }
+function buildPickerList(cat, query) {
+  const list = document.getElementById('picker-list');
+  const q = query.toLowerCase();
+  const currentVal = document.getElementById(PICKER_META[cat].valId).textContent;
+  if (cat === 'color') {
+    const items = DATA.color.filter(c => !q || c.name.includes(query) || c.mood.includes(query));
+    list.innerHTML = items.map(c => `<div class="picker-color-item${currentVal===c.name?' selected':''}" onclick="pickItem('color','${c.name}')"><span class="picker-color-dot" style="background:${c.base}"></span>${c.name} <span style="font-size:11px;color:var(--muted);margin-left:4px;">${c.mood}</span></div>`).join('');
+    return;
+  }
+  if (cat === 'pose') {
+    let html = '';
+    Object.keys(DATA.pose).forEach(group => {
+      const items = DATA.pose[group].filter(p => !q || p.includes(query));
+      if (!items.length) return;
+      html += `<div class="picker-group-label">${group}</div>`;
+      html += items.map(p => `<div class="picker-item${currentVal===p?' selected':''}" onclick="pickItem('pose','${p.replace(/'/g,"\\'")}')"> ${p}</div>`).join('');
+    });
+    list.innerHTML = html || '<div style="color:var(--muted);font-size:13px;padding:12px;">見つかりませんでした</div>';
+    return;
+  }
+  if (cat === 'gijinka') {
+    let html = '';
+    const allGroups = {...DATA.gijinka};
+    if ((customData.gijinka||[]).length) allGroups['オリジナル'] = customData.gijinka;
+    Object.keys(allGroups).forEach(group => {
+      const items = allGroups[group].filter(p => !q || p.includes(query));
+      if (!items.length) return;
+      html += `<div class="picker-group-label">${group}</div>`;
+      html += items.map(p => `<div class="picker-item${currentVal===p?' selected':''}" onclick="pickItem('gijinka','${p.replace(/'/g,"\\'")}')"> ${p}</div>`).join('');
+    });
+    list.innerHTML = html || '<div style="color:var(--muted);font-size:13px;padding:12px;">見つかりませんでした</div>';
+    return;
+  }
+  if (cat === 'items') {
+    let html = '';
+    const allGroups = {...DATA.items};
+    if ((customData.items||[]).length) allGroups['オリジナル'] = customData.items;
+    Object.keys(allGroups).forEach(group => {
+      const items = allGroups[group].filter(p => !q || p.includes(query));
+      if (!items.length) return;
+      html += `<div class="picker-group-label">${group}</div>`;
+      html += items.map(p => `<div class="picker-item${currentVal===p?' selected':''}" onclick="pickItem('items','${p.replace(/'/g,"\\'")}')"> ${p}</div>`).join('');
+    });
+    list.innerHTML = html || '<div style="color:var(--muted);font-size:13px;padding:12px;">見つかりませんでした</div>';
+    return;
+  }
+  if (cat === 'facial') {
+    let html = '';
+    const allGroups = {...DATA.facial};
+    if ((customData.facial||[]).length) allGroups['オリジナル'] = customData.facial;
+    Object.keys(allGroups).forEach(group => {
+      const items = allGroups[group].filter(p => !q || p.includes(query));
+      if (!items.length) return;
+      html += `<div class="picker-group-label">${group}</div>`;
+      html += items.map(p => `<div class="picker-item${currentVal===p?' selected':''}" onclick="pickItem('facial','${p.replace(/'/g,"\\'")}')"> ${p}</div>`).join('');
+    });
+    list.innerHTML = html || '<div style="color:var(--muted);font-size:13px;padding:12px;">見つかりませんでした</div>';
+    return;
+  }
+  let sourceItems;
+  if (cat === 'composition') sourceItems = getCompositionPool();
+  else if (cat === 'outfit') sourceItems = getOutfitPool();
+  else if (cat === 'hair')   sourceItems = getHairPool();
+  else                       sourceItems = DATA[cat] || [];
+  const items = sourceItems.filter(v => !q || v.includes(query));
+  list.innerHTML = items.length
+    ? items.map(v => `<div class="picker-item${currentVal===v?' selected':''}" onclick="pickItem('${cat}','${v.replace(/'/g,"\\'")}')"> ${v}</div>`).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:12px;">見つかりませんでした</div>';
+}
+function pickItem(cat, value) {
+  const meta = PICKER_META[cat];
+  document.getElementById(meta.valId).textContent = value;
+  document.getElementById(meta.cardId).classList.add('picked');
+  if (cat === 'color') { currentIdea.color = value; currentIdea.colorObj = DATA.color.find(c => c.name === value); }
+  else if (cat === 'composition') { currentIdea.composition = value; }
+  else { currentIdea[cat] = value; }
+  updatePrompt();
+  buildPickerList(cat, document.getElementById('picker-search').value);
+}
+function updatePrompt() {
+  const active = getActiveCats();
+  const parts = [];
+  if (active.includes('theme') && currentIdea.theme && currentIdea.theme !== '—') parts.push(`テーマ「${currentIdea.theme}」`);
+  if (active.includes('composition') && currentIdea.composition && currentIdea.composition !== '—') parts.push(`${currentIdea.composition}の構図`);
+  if (active.includes('gijinka') && currentIdea.gijinka && currentIdea.gijinka !== '—') parts.push(`${currentIdea.gijinka}擬人化`);
+  if (active.includes('outfit') && currentIdea.outfit && currentIdea.outfit !== '—') parts.push(`${currentIdea.outfit}を着た`);
+  if (active.includes('hair') && currentIdea.hair && currentIdea.hair !== '—') parts.push(`${currentIdea.hair}の人物`);
+  if (active.includes('pose') && currentIdea.pose && currentIdea.pose !== '—') parts.push(`${currentIdea.pose}シーン`);
+  if (active.includes('items') && currentIdea.items && currentIdea.items !== '—') parts.push(`${currentIdea.items}を持つ`);
+  if (active.includes('facial') && currentIdea.facial && currentIdea.facial !== '—') parts.push(`表情は${currentIdea.facial}`);
+  if (active.includes('color') && currentIdea.color && currentIdea.color !== '—') { const c = currentIdea.colorObj || DATA.color.find(x => x.name === currentIdea.color); parts.push(`ベースカラーは${currentIdea.color}${c?`（${c.mood}）`:''}`); }
+  document.getElementById('generated-prompt').textContent = parts.length ? parts.join('、') + '。' : 'カードをクリックして手動選択、または「シャッフル」でランダム生成しましょう。';
+}
+function resetAll() {
+  currentIdea = {};
+  ['r-theme','r-comp','r-pose','r-outfit','r-hair','r-color','r-gijinka','r-items','r-facial'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '—';
+  });
+  ['card-theme','card-comp','card-pose','card-outfit','card-hair','card-color','card-gijinka','card-items','card-facial'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('picked', 'landing');
+  });
+  document.getElementById('random-idle').style.display = '';
+  document.getElementById('random-cards').style.display = 'none';
+  document.getElementById('prompt-wrap').style.display = 'none';
+  document.getElementById('generated-prompt').textContent = '';
+}
+
+/* ── カテゴリトグル ── */
+function toggleCat(el) { el.classList.toggle('on'); updateCardVisibility(); }
+function selectAllCats(on) { document.querySelectorAll('.cat-toggle').forEach(el => on ? el.classList.add('on') : el.classList.remove('on')); updateCardVisibility(); }
+function getActiveCats() { return Array.from(document.querySelectorAll('.cat-toggle.on')).map(el => el.dataset.cat); }
+function updateCardVisibility() {
+  const active = getActiveCats();
+  const map = {
+    theme:'card-theme', composition:'card-comp', pose:'card-pose',
+    outfit:'card-outfit', hair:'card-hair', color:'card-color',
+    gijinka:'card-gijinka', items:'card-items', facial:'card-facial'
+  };
+  Object.entries(map).forEach(([cat,id]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = active.includes(cat) ? '' : 'none';
+  });
+}
+
+/* ── ランダム生成 ── */
+function generateAll() {
+  const active = getActiveCats();
+  if (!active.length) { alert('カテゴリを1つ以上選択してください'); return; }
+
+  document.getElementById('random-idle').style.display = 'none';
+  document.getElementById('random-cards').style.display = '';
+  document.getElementById('prompt-wrap').style.display = '';
+
+  const btn = document.getElementById('btn-shuffle');
+  btn.classList.add('shaking');
+  btn.disabled = true;
+  setTimeout(() => btn.classList.remove('shaking'), 400);
+
+  const poseKeys = Object.keys(DATA.pose);
+  const pools = {
+    theme:       DATA.theme,
+    composition: getCompositionPool(),
+    pose:        Object.values(DATA.pose).flat(),
+    outfit:      getOutfitPool(),
+    hair:        getHairPool(),
+    color:       DATA.color.map(c => c.name),
+    gijinka:     getAllGijinka(),
+    items:       getAllItems(),
+    facial:      getAllFacial(),
+  };
+
+  // 最終結果を先に決定
+  const finals = {};
+  if (active.includes('theme'))       finals.theme       = pick(DATA.theme);
+  if (active.includes('composition')) finals.composition = pick(getCompositionPool());
+  if (active.includes('pose'))        finals.pose        = pick(DATA.pose[pick(poseKeys)]);
+  if (active.includes('outfit'))      finals.outfit      = pick(getOutfitPool());
+  if (active.includes('hair'))        finals.hair        = pick(getHairPool());
+  if (active.includes('color'))       { const c = pick(DATA.color); finals.color = c.name; finals.colorObj = c; }
+  if (active.includes('gijinka'))     finals.gijinka     = pick(getAllGijinka());
+  if (active.includes('items'))       finals.items       = pick(getAllItems());
+  if (active.includes('facial'))      finals.facial      = pick(getAllFacial());
+
+  const valIds  = { theme:'r-theme', composition:'r-comp', pose:'r-pose', outfit:'r-outfit', hair:'r-hair', color:'r-color', gijinka:'r-gijinka', items:'r-items', facial:'r-facial' };
+  const cardIds = { theme:'card-theme', composition:'card-comp', pose:'card-pose', outfit:'card-outfit', hair:'card-hair', color:'card-color', gijinka:'card-gijinka', items:'card-items', facial:'card-facial' };
+
+  // スピン開始
+  active.forEach(cat => {
+    const el = document.getElementById(valIds[cat]);
+    if (!el) return;
+    el.classList.add('spinning');
+    document.getElementById(cardIds[cat]).classList.remove('picked', 'landing');
+  });
+
+  const SPIN_DURATION = 1400;
+  const INTERVAL = 80;
+  let elapsed = 0;
+  const timer = setInterval(() => {
+    elapsed += INTERVAL;
+    active.forEach(cat => {
+      const el = document.getElementById(valIds[cat]);
+      if (!el || !el.classList.contains('spinning')) return;
+      const slowRatio = Math.min(elapsed / SPIN_DURATION, 1);
+      const showFinal = slowRatio > 0.7 && Math.random() < (slowRatio - 0.7) * 3;
+      el.textContent = showFinal ? finals[cat] : pick(pools[cat]);
+    });
+  }, INTERVAL);
+
+  // カテゴリごとに少しずらして着地
+  active.forEach((cat, i) => {
+    const delay = SPIN_DURATION + i * 120;
+    setTimeout(() => {
+      const el = document.getElementById(valIds[cat]);
+      const cardEl = document.getElementById(cardIds[cat]);
+      if (!el || !cardEl) return;
+      el.classList.remove('spinning');
+      el.textContent = finals[cat];
+      cardEl.classList.add('picked', 'landing');
+    }, delay);
+  });
+
+  const totalTime = SPIN_DURATION + active.length * 120 + 500;
+  setTimeout(() => {
+    clearInterval(timer);
+    btn.disabled = false;
+    if (finals.theme)       currentIdea.theme       = finals.theme;
+    if (finals.composition) currentIdea.composition = finals.composition;
+    if (finals.pose)        currentIdea.pose        = finals.pose;
+    if (finals.outfit)      currentIdea.outfit      = finals.outfit;
+    if (finals.hair)        currentIdea.hair        = finals.hair;
+    if (finals.color)       { currentIdea.color = finals.color; currentIdea.colorObj = finals.colorObj; }
+    if (finals.gijinka)     currentIdea.gijinka     = finals.gijinka;
+    if (finals.items)       currentIdea.items       = finals.items;
+    updatePrompt();
+  }, totalTime);
+}
+function saveIdea() {
+  if (!currentIdea.theme && !currentIdea.pose && !currentIdea.outfit) return;
+  const prompt = document.getElementById('generated-prompt').textContent;
+  savedIdeas.unshift({ id: Date.now(), text: prompt });
+  localStorage.setItem('illusio_saved', JSON.stringify(savedIdeas));
+  alert('保存しました！');
+}
+
+/* ── ポーズ ── */
+let selectedPose = {};
+function renderPoseCards(selected = {}) {
+  const area = document.getElementById('pose-area');
+  area.innerHTML = Object.keys(DATA.pose).map(cat => {
+    const cards = DATA.pose[cat].map(p => {
+      const isSel = selected[cat] === p;
+      return `<div class="idea-card acc-purple" onclick="selectPose('${cat}','${p.replace(/'/g,"\\'")}');" style="cursor:pointer;${isSel?'box-shadow:0 0 0 3px var(--orange);border-color:var(--orange);':''}">
+        <div class="card-label">ポーズ</div>
+        <div class="card-value">${p}</div>
+      </div>`;
+    }).join('');
+    return `<div class="pose-cat"><div class="pose-cat-title">${cat}</div><div class="card-grid">${cards}</div></div>`;
+  }).join('');
+}
+function selectPose(cat, pose) { selectedPose[cat] = pose; renderPoseCards(selectedPose); }
+function randomPose() { selectedPose = {}; Object.keys(DATA.pose).forEach(k => { selectedPose[k] = pick(DATA.pose[k]); }); renderPoseCards(selectedPose); }
+
+/* ── カラー ── */
+function renderPalette() {
+  const area = document.getElementById('color-group-area');
+  if (!area || area.children.length > 0) return;
+
+  // カスタムも含めた全カラーをname→objectのマップに
+  const colorMap = {};
+  DATA.color.forEach(c => { colorMap[c.name] = c; });
+
+  let html = '';
+  COLOR_GROUPS.forEach(group => {
+    const colors = group.names.map(n => colorMap[n]).filter(Boolean);
+    if (!colors.length) return;
+    html += `<div class="color-group-section">
+      <div class="color-group-label">${group.label}</div>
+      <div class="color-swatch-row">
+        ${colors.map(c => `
+          <div class="color-swatch-item" onclick="selectColorByName('${c.name}')" id="cswatch-${c.name.replace(/[^a-zA-Z0-9]/g,'_')}">
+            <div class="color-swatch-circle" style="background:${c.base};"></div>
+            <div class="color-swatch-name">${c.name}</div>
+            <div class="color-swatch-mood">${c.mood}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  // グループに含まれないカスタムカラーがあれば「オリジナル」グループに
+  const groupedNames = new Set(COLOR_GROUPS.flatMap(g => g.names));
+  const customs = DATA.color.filter(c => !groupedNames.has(c.name));
+  if (customs.length) {
+    html += `<div class="color-group-section">
+      <div class="color-group-label">✏️ オリジナル</div>
+      <div class="color-swatch-row">
+        ${customs.map(c => `
+          <div class="color-swatch-item" onclick="selectColorByName('${c.name}')" id="cswatch-${c.name.replace(/[^a-zA-Z0-9]/g,'_')}">
+            <div class="color-swatch-circle" style="background:${c.base};"></div>
+            <div class="color-swatch-name">${c.name}</div>
+            <div class="color-swatch-mood">${c.mood}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  area.innerHTML = html;
+}
+
+function selectColorByName(name) {
+  const c = DATA.color.find(x => x.name === name);
+  if (!c) return;
+  selectedColorIdx = DATA.color.indexOf(c);
+
+  // 選択状態の更新
+  document.querySelectorAll('.color-swatch-item').forEach(el => el.classList.remove('selected'));
+  const id = 'cswatch-' + name.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('selected');
+
+  renderColorCards(selectedColorIdx);
+}
+function renderColorCards(idx) {
+  const c = DATA.color[idx];
+  document.getElementById('color-preview').innerHTML = `<div class="cp-block" style="background:${c.h};color:${c.s};flex:2;">ハイライト</div><div class="cp-block" style="background:${c.base};color:#fff;flex:3;">${c.name}</div><div class="cp-block" style="background:${c.s};color:${c.h};flex:2;">シャドウ</div>`;
+  document.getElementById('color-cards').innerHTML = makeCard('ベースカラー', c.name, 'acc-red', c.mood) + makeCard('ハイライト', '明るい差し色', 'acc-teal', c.h) + makeCard('シャドウ', '暗い差し色', 'acc-purple', c.s);
+}
+function randomColor() {
+  const idx = Math.floor(Math.random() * DATA.color.length);
+  selectedColorIdx = idx;
+  selectColorByName(DATA.color[idx].name);
+}
+
+/* ── カテゴリ汎用チェックリスト ── */
+const catChecked = { pose: new Set(), outfit: new Set(), hair: new Set(), color: new Set() };
+
+function renderCatChecklist(cat) {
+  const wrap = document.getElementById(`${cat}-checklist-wrap`);
+
+  if (cat === 'pose') {
+    wrap.innerHTML = Object.keys(DATA.pose).map(group => {
+      const items = DATA.pose[group];
+      const chips = items.map(p => `<span class="cat-chip${catChecked.pose.has(p) ? ' checked' : ''}" onclick="toggleCatChip('pose','${p.replace(/'/g,"\\'")}',this)">${p}</span>`).join('');
+      return `<div class="cat-checklist-group">
+        <div class="cat-checklist-group-label">${group}
+          <div style="display:flex;gap:4px;">
+            <button onclick="selectGroupChips('pose','${group}',true)">全選択</button>
+            <button onclick="selectGroupChips('pose','${group}',false)">解除</button>
+          </div>
+        </div>
+        <div class="cat-checklist-items">${chips}</div>
+      </div>`;
+    }).join('');
+  } else if (cat === 'color') {
+    const chips = DATA.color.map(c => `<span class="cat-color-chip${catChecked.color.has(c.name) ? ' checked' : ''}" onclick="toggleCatChip('color','${c.name}',this)"><span class="cat-color-swatch" style="background:${c.base}"></span>${c.name}</span>`).join('');
+    wrap.innerHTML = `<div class="cat-checklist-group">
+      <div class="cat-checklist-group-label">カラー
+        <div style="display:flex;gap:4px;">
+          <button onclick="selectAllCatChips('color',true)">全選択</button>
+          <button onclick="selectAllCatChips('color',false)">解除</button>
+        </div>
+      </div>
+      <div class="cat-checklist-items">${chips}</div>
+    </div>`;
+  } else if (cat === 'outfit') {
+    // 現在の性別フィルターで有効な衣装セット
+    const pool = new Set(getOutfitPool());
+    let html = '';
+    OUTFIT_CATEGORIES.forEach(group => {
+      // 現在の性別フィルターで表示できるものだけ絞り込む
+      const items = group.names.filter(n => pool.has(n));
+      if (!items.length) return;
+      const chips = items.map(v => `<span class="cat-chip${catChecked.outfit.has(v) ? ' checked' : ''}" onclick="toggleCatChip('outfit','${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('');
+      html += `<div class="cat-checklist-group">
+        <div class="cat-checklist-group-label">${group.label}
+          <div style="display:flex;gap:4px;">
+            <button onclick="selectOutfitGroup(${JSON.stringify(group.names)},true)">全選択</button>
+            <button onclick="selectOutfitGroup(${JSON.stringify(group.names)},false)">解除</button>
+          </div>
+        </div>
+        <div class="cat-checklist-items">${chips}</div>
+      </div>`;
+    });
+    // カスタムがあれば追加
+    const customs = customData.outfit || [];
+    if (customs.length) {
+      const chips = customs.map(v => `<span class="cat-chip${catChecked.outfit.has(v) ? ' checked' : ''}" onclick="toggleCatChip('outfit','${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('');
+      html += `<div class="cat-checklist-group">
+        <div class="cat-checklist-group-label">✏️ オリジナル
+          <div style="display:flex;gap:4px;">
+            <button onclick="selectOutfitGroup(${JSON.stringify(customs)},true)">全選択</button>
+            <button onclick="selectOutfitGroup(${JSON.stringify(customs)},false)">解除</button>
+          </div>
+        </div>
+        <div class="cat-checklist-items">${chips}</div>
+      </div>`;
+    }
+    wrap.innerHTML = html || '<div class="empty-msg">該当する衣装がありません</div>';
+  } else {
+    // hair
+    const pool = new Set(getHairPool());
+    let html = '';
+    HAIR_CATEGORIES.forEach(group => {
+      const items = group.names.filter(n => pool.has(n));
+      if (!items.length) return;
+      const chips = items.map(v => `<span class="cat-chip${catChecked.hair.has(v) ? ' checked' : ''}" onclick="toggleCatChip('hair','${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('');
+      html += `<div class="cat-checklist-group">
+        <div class="cat-checklist-group-label">${group.label}
+          <div style="display:flex;gap:4px;">
+            <button onclick="selectHairGroup(${JSON.stringify(group.names)},true)">全選択</button>
+            <button onclick="selectHairGroup(${JSON.stringify(group.names)},false)">解除</button>
+          </div>
+        </div>
+        <div class="cat-checklist-items">${chips}</div>
+      </div>`;
+    });
+    const customs = customData.hair || [];
+    if (customs.length) {
+      const chips = customs.map(v => `<span class="cat-chip${catChecked.hair.has(v) ? ' checked' : ''}" onclick="toggleCatChip('hair','${v.replace(/'/g,"\\'")}',this)">${v}</span>`).join('');
+      html += `<div class="cat-checklist-group">
+        <div class="cat-checklist-group-label">✏️ オリジナル
+          <div style="display:flex;gap:4px;">
+            <button onclick="selectHairGroup(${JSON.stringify(customs)},true)">全選択</button>
+            <button onclick="selectHairGroup(${JSON.stringify(customs)},false)">解除</button>
+          </div>
+        </div>
+        <div class="cat-checklist-items">${chips}</div>
+      </div>`;
+    }
+    wrap.innerHTML = html || '<div class="empty-msg">該当する髪型がありません</div>';
+  }
+  updateCatCount(cat);
+}
+
+function toggleCatChip(cat, value, el) {
+  if (catChecked[cat].has(value)) { catChecked[cat].delete(value); el.classList.remove('checked'); }
+  else { catChecked[cat].add(value); el.classList.add('checked'); }
+  updateCatCount(cat);
+}
+
+function selectGroupChips(cat, group, on) {
+  DATA.pose[group].forEach(p => on ? catChecked[cat].add(p) : catChecked[cat].delete(p));
+  renderCatChecklist(cat);
+}
+
+function selectOutfitGroup(names, on) {
+  const pool = new Set(getOutfitPool());
+  names.filter(n => pool.has(n)).forEach(v => on ? catChecked.outfit.add(v) : catChecked.outfit.delete(v));
+  renderCatChecklist('outfit');
+}
+
+function selectHairGroup(names, on) {
+  const pool = new Set(getHairPool());
+  names.filter(n => pool.has(n)).forEach(v => on ? catChecked.hair.add(v) : catChecked.hair.delete(v));
+  renderCatChecklist('hair');
+}
+
+function selectAllCatChips(cat, on) {
+  const items = cat === 'pose'
+    ? Object.values(DATA.pose).flat()
+    : cat === 'color' ? DATA.color.map(c => c.name) : DATA[cat];
+  items.forEach(v => on ? catChecked[cat].add(v) : catChecked[cat].delete(v));
+  renderCatChecklist(cat);
+}
+
+function updateCatCount(cat) {
+  const el = document.getElementById(`${cat}-check-count`);
+  if (el) el.textContent = catChecked[cat].size ? `${catChecked[cat].size}件選択中` : '0件選択（全件対象）';
+}
+
+function shuffleFromChecklist(cat) {
+  const pool = catChecked[cat].size > 0 ? [...catChecked[cat]] : (
+    cat === 'pose'   ? Object.values(DATA.pose).flat() :
+    cat === 'color'  ? DATA.color.map(c => c.name) :
+    cat === 'outfit' ? getOutfitPool() :
+    cat === 'hair'   ? getHairPool() :
+                       DATA[cat]
+  );
+  const picked = pickN(pool, Math.min(3, pool.length));
+  const cardsEl = document.getElementById(`${cat}-checked-cards`);
+
+  if (cat === 'color') {
+    cardsEl.innerHTML = picked.map(name => {
+      const c = DATA.color.find(x => x.name === name);
+      return c ? makeCard('カラー', c.name, 'acc-red', c.mood) : '';
+    }).join('');
+  } else {
+    const acc = { pose: 'acc-purple', outfit: 'acc-gold', hair: 'acc-ink' };
+    const label = { pose: 'ポーズ', outfit: '衣装', hair: '髪型' };
+    cardsEl.innerHTML = picked.map(v => makeCard(label[cat], v, acc[cat])).join('');
+  }
+  cardsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── カスタムアイテム管理 ── */
+// localStorageから復元
+const CUSTOM_KEY = 'illusio_custom_v1';
+let customData = JSON.parse(localStorage.getItem(CUSTOM_KEY) || '{"pose":{},"outfit":[],"hair":[],"color":[],"odai":[],"gijinka":[],"items":[]}');
+if (!customData.pose || Array.isArray(customData.pose)) customData.pose = {};
+if (!customData.outfit)  customData.outfit  = [];
+if (!customData.hair)    customData.hair    = [];
+if (!customData.color)   customData.color   = [];
+if (!customData.odai)    customData.odai    = [];
+if (!customData.gijinka) customData.gijinka = [];
+if (!customData.items)   customData.items   = [];
+if (!customData.facial)  customData.facial  = [];
+
+function saveCustomData() { localStorage.setItem(CUSTOM_KEY, JSON.stringify(customData)); }
+
+// DATA配列にカスタムを統合して返す
+function getMergedData(cat) {
+  if (cat === 'pose') {
+    const merged = JSON.parse(JSON.stringify(DATA.pose));
+    Object.entries(customData.pose).forEach(([group, items]) => {
+      if (!merged[group]) merged[group] = [];
+      merged[group] = [...merged[group], ...items];
+    });
+    return merged;
+  }
+  if (cat === 'color') {
+    return [...DATA.color, ...customData.color];
+  }
+  return [...DATA[cat], ...(customData[cat] || [])];
+}
+
+function addCustomItem(cat) {
+  if (cat === 'pose') {
+    const group = document.getElementById('pose-custom-group').value;
+    const val = document.getElementById('pose-custom-input').value.trim();
+    if (!val) return;
+    if (!customData.pose[group]) customData.pose[group] = [];
+    if (customData.pose[group].includes(val)) return;
+    customData.pose[group].push(val);
+    document.getElementById('pose-custom-input').value = '';
+  } else {
+    const input = document.getElementById(`${cat}-custom-input`);
+    const val = input.value.trim();
+    if (!val) return;
+    if (customData[cat].includes(val)) return;
+    customData[cat].push(val);
+    input.value = '';
+    // DATAにも即時反映
+    if (cat === 'odai') DATA.odai.push(val);
+    else if (cat === 'gijinka') { /* getAllGijinka()で参照するので別途反映不要 */ }
+    else if (cat === 'items')   { /* getAllItems()で参照するので別途反映不要 */ }
+    else if (cat === 'facial')  { /* getAllFacial()で参照するので別途反映不要 */ }
+    else DATA[cat].push(val);
+  }
+  saveCustomData();
+  renderCustomList(cat);
+  // ポーズはDATAにも反映
+  if (cat === 'pose') {
+    const group = document.getElementById('pose-custom-group').value;
+    if (!DATA.pose[group]) DATA.pose[group] = [];
+    const val = customData.pose[group][customData.pose[group].length - 1];
+    if (!DATA.pose[group].includes(val)) DATA.pose[group].push(val);
+    renderPoseCards();
+  }
+}
+
+function addCustomColor() {
+  const name = document.getElementById('color-custom-name').value.trim();
+  const mood = document.getElementById('color-custom-mood').value.trim() || 'オリジナル';
+  const base = document.getElementById('color-custom-picker').value;
+  if (!name) return;
+  const exists = customData.color.some(c => c.name === name) || DATA.color.some(c => c.name === name);
+  if (exists) { alert('同じ名前のカラーが既に存在します'); return; }
+  const entry = { name, base, h: lighten(base), s: darken(base), mood, custom: true };
+  customData.color.push(entry);
+  DATA.color.push(entry);
+  document.getElementById('color-custom-name').value = '';
+  document.getElementById('color-custom-mood').value = '';
+  saveCustomData();
+  renderCustomList('color');
+  // グループ再描画
+  const area = document.getElementById('color-group-area');
+  if (area) area.innerHTML = '';
+  renderPalette();
+}
+
+// 簡易明暗計算
+function lighten(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.min(255,r+80)},${Math.min(255,g+80)},${Math.min(255,b+80)})`;
+}
+function darken(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.max(0,r-60)},${Math.max(0,g-60)},${Math.max(0,b-60)})`;
+}
+
+function deleteCustomItem(cat, value, group = null) {
+  if (cat === 'pose' && group) {
+    customData.pose[group] = customData.pose[group].filter(v => v !== value);
+    if (!customData.pose[group].length) delete customData.pose[group];
+    // DATAからも削除
+    if (DATA.pose[group]) DATA.pose[group] = DATA.pose[group].filter(v => v !== value);
+  } else if (cat === 'color') {
+    customData.color = customData.color.filter(c => c.name !== value);
+    DATA.color = DATA.color.filter(c => c.name !== value);
+    const area = document.getElementById('color-group-area');
+    if (area) area.innerHTML = '';
+    renderPalette();
+  } else {
+    customData[cat] = customData[cat].filter(v => v !== value);
+    DATA[cat] = DATA[cat].filter(v => v !== value);
+  }
+  saveCustomData();
+  renderCustomList(cat);
+  if (cat === 'pose') renderPoseCards();
+}
+
+function renderCustomList(cat) {
+  const listEl = document.getElementById(`${cat}-custom-list`);
+  if (!listEl) return;
+
+  if (cat === 'pose') {
+    const all = [];
+    Object.entries(customData.pose).forEach(([group, items]) => {
+      items.forEach(v => all.push({ v, group }));
+    });
+    listEl.innerHTML = all.map(({v, group}) =>
+      `<div class="custom-chip">${v} <span style="font-size:10px;opacity:0.6;">(${group})</span>
+        <span class="custom-chip-del" onclick="deleteCustomItem('pose','${v.replace(/'/g,"\\'")}','${group}')">×</span>
+      </div>`).join('');
+    return;
+  }
+  if (cat === 'color') {
+    listEl.innerHTML = customData.color.map(c =>
+      `<div class="custom-chip"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.base};border:1px solid rgba(0,0,0,0.1);margin-right:4px;"></span>${c.name}
+        <span class="custom-chip-del" onclick="deleteCustomItem('color','${c.name.replace(/'/g,"\\'")}')">×</span>
+      </div>`).join('');
+    return;
+  }
+  listEl.innerHTML = (customData[cat] || []).map(v =>
+    `<div class="custom-chip">${v}
+      <span class="custom-chip-del" onclick="deleteCustomItem('${cat}','${v.replace(/'/g,"\\'")}')">×</span>
+    </div>`).join('');
+  // gijinka/items のチェックリストも更新
+  if (cat === 'gijinka') renderGijinkaChecklist();
+  if (cat === 'items')   renderItemsChecklist();
+  if (cat === 'facial')  renderFacialChecklist();
+}
+
+function initCustomData() {
+  // カスタムデータをDATAに反映
+  Object.entries(customData.pose).forEach(([group, items]) => {
+    if (!DATA.pose[group]) DATA.pose[group] = [];
+    items.forEach(v => { if (!DATA.pose[group].includes(v)) DATA.pose[group].push(v); });
+  });
+  customData.outfit.forEach(v => { if (!DATA.outfit.includes(v)) DATA.outfit.push(v); });
+  customData.hair.forEach(v => { if (!DATA.hair.includes(v)) DATA.hair.push(v); });
+  customData.color.forEach(c => { if (!DATA.color.some(x => x.name === c.name)) DATA.color.push(c); });
+  customData.odai.forEach(v => { if (!DATA.odai.includes(v)) DATA.odai.push(v); });
+  // gijinka/items/facialはgetAll〜()内でcustomDataを参照するので追加不要
+  ['pose','outfit','hair','color','odai','gijinka','items','facial'].forEach(cat => renderCustomList(cat));
+}
+
+/* ── お題箱 ── */
+let odaiChecked = new Set();
+let odaiMode = 'random';
+
+function switchOdaiMode(mode) {
+  odaiMode = mode;
+  document.getElementById('mode-btn-random').classList.toggle('active', mode === 'random');
+  document.getElementById('mode-btn-checklist').classList.toggle('active', mode === 'checklist');
+  document.getElementById('odai-random-mode').style.display = mode === 'random' ? '' : 'none';
+  document.getElementById('odai-checklist-mode').style.display = mode === 'checklist' ? '' : 'none';
+  if (mode === 'checklist') renderOdaiChecklist();
+}
+
+function randomOdai() {
+  const picks = pickN(DATA.odai, 3);
+  document.getElementById('odai-cards').innerHTML = picks.map(p => makeCard('お題', p, 'acc-purple')).join('');
+}
+
+function renderOdaiChecklist(filter = '') {
+  const list = document.getElementById('odai-checklist');
+  const filtered = filter ? DATA.odai.filter(o => o.includes(filter)) : DATA.odai;
+  list.innerHTML = filtered.map(o => {
+    const checked = odaiChecked.has(o);
+    return `<div class="odai-check-item${checked ? ' checked' : ''}" onclick="toggleOdaiCheck('${o.replace(/'/g, "\\'")}')">
+      <div class="odai-checkbox">${checked ? '✓' : ''}</div>
+      <div class="odai-check-label">${o}</div>
+    </div>`;
+  }).join('');
+  updateOdaiCount();
+}
+
+function toggleOdaiCheck(odai) {
+  odaiChecked.has(odai) ? odaiChecked.delete(odai) : odaiChecked.add(odai);
+  renderOdaiChecklist(document.getElementById('odai-search').value);
+}
+
+function selectAllOdai(on) {
+  const q = document.getElementById('odai-search').value;
+  const filtered = q ? DATA.odai.filter(o => o.includes(q)) : DATA.odai;
+  filtered.forEach(o => on ? odaiChecked.add(o) : odaiChecked.delete(o));
+  renderOdaiChecklist(q);
+}
+
+function filterOdaiList() {
+  renderOdaiChecklist(document.getElementById('odai-search').value);
+}
+
+function updateOdaiCount() {
+  document.getElementById('odai-check-count').textContent = odaiChecked.size ? `${odaiChecked.size}件選択中` : '0件選択';
+}
+
+function showCheckedOdai() {
+  const selected = [...odaiChecked];
+  const cards = document.getElementById('odai-selected-cards');
+  if (!selected.length) { cards.innerHTML = '<div style="color:var(--muted);font-size:13px;">お題を選択してください</div>'; return; }
+  cards.innerHTML = selected.map(o => makeCard('お題', o, 'acc-purple')).join('');
+  cards.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── 保存済み ── */
+function renderSaved() {
+  const wrap = document.getElementById('saved-list-wrap');
+  if (!savedIdeas.length) { wrap.innerHTML = '<div class="empty-msg">まだ保存されたアイデアはありません。</div>'; return; }
+  wrap.innerHTML = '<div class="saved-list">' + savedIdeas.map(item => `<div class="saved-item"><span>${item.text}</span><span class="del" onclick="deleteIdea(${item.id})">×</span></div>`).join('') + '</div>';
+}
+function deleteIdea(id) { savedIdeas = savedIdeas.filter(x => x.id !== id); localStorage.setItem('illusio_saved', JSON.stringify(savedIdeas)); renderSaved(); }
+
+/* ── Init ── */
+initCustomData();
+randomOdai();
+renderPoseCards();
+</script>
+</body>
+</html>

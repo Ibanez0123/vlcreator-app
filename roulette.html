@@ -238,7 +238,90 @@ header{padding:20px 0 20px;display:flex;align-items:center;gap:12px;margin-botto
 /* 旧paletteクラスの互換保持 */
 .palette { display: none; }
 
-@media(max-width:600px){.app{padding:0 16px 60px;}.card-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){
+  .app { padding: 0 12px 60px; }
+
+  /* ヘッダー */
+  header { padding: 14px 0 14px; gap: 8px; margin-bottom: 18px; }
+  .logo { font-size: 20px; }
+  .logo-icon { width: 32px; height: 32px; font-size: 16px; border-radius: 9px; }
+  .page-title { font-size: 11px; padding: 4px 10px; }
+  .back-btn { font-size: 12px; padding: 5px 10px; }
+
+  /* タブ */
+  .tabs { gap: 4px; padding-bottom: 4px; margin-bottom: 18px; }
+  .tab { padding: 6px 12px; font-size: 12px; }
+
+  /* セクションヘッダー */
+  .sec-h { font-size: 18px; }
+  .sec-sub { font-size: 12px; }
+
+  /* カードグリッド：スマホは2列 */
+  .card-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .idea-card { padding: 12px; min-height: 80px; }
+  .card-value { font-size: 13px; }
+  .card-label { font-size: 9px; }
+
+  /* ボタン */
+  .btn { padding: 8px 14px; font-size: 12px; }
+  .btn-row { gap: 6px; margin-bottom: 16px; }
+
+  /* カテゴリトグル */
+  .cat-toggle { font-size: 12px; padding: 6px 10px; }
+  .cat-toggles { gap: 6px; }
+
+  /* 性別・人数フィルター */
+  .gender-btn, .person-btn { font-size: 12px; padding: 6px 12px; }
+  .gender-btns { gap: 6px; }
+
+  /* プロンプトボックス */
+  .prompt-box { font-size: 14px; padding: 12px 14px; }
+
+  /* ピッカードロワー */
+  .picker-drawer { max-height: 75vh; }
+  .picker-header { padding: 12px 14px 10px; }
+  .picker-title { font-size: 14px; }
+  .picker-search { font-size: 12px; padding: 6px 10px; }
+  .picker-item { font-size: 12px; padding: 6px 10px; }
+  .picker-list { gap: 5px; padding: 6px 10px 20px; }
+
+  /* チェックリスト */
+  .odai-checklist { max-height: 300px; }
+  .odai-check-label { font-size: 12px; }
+  .cat-chip { font-size: 12px; padding: 5px 10px; }
+  .cat-checklist-items { gap: 5px; }
+  .odai-search { font-size: 12px; }
+
+  /* カラースウォッチ */
+  .color-swatch-item { width: 52px; }
+  .color-swatch-circle { width: 34px; height: 34px; }
+  .color-swatch-name { font-size: 9px; }
+  .color-swatch-mood { font-size: 8px; }
+
+  /* カラープレビュー */
+  .cp-block { height: 60px; font-size: 10px; }
+
+  /* ポーズカテゴリ */
+  .pose-cat-title { font-size: 10px; }
+
+  /* 待機状態 */
+  .idle-icon { font-size: 40px; }
+  .idle-text { font-size: 15px; }
+  .idle-sub { font-size: 12px; }
+
+  /* odai mode bar */
+  .odai-mode-bar { gap: 4px; }
+  .odai-mode-btn { font-size: 12px; padding: 6px 14px; }
+
+  /* カスタム追加 */
+  .custom-input { font-size: 12px; padding: 8px 12px; }
+  .custom-select { font-size: 12px; padding: 8px 10px; }
+  .custom-add-row { gap: 6px; }
+
+  /* odai draw bar */
+  .odai-draw-bar { padding: 10px 12px; gap: 8px; }
+  .cat-check-count { font-size: 11px; }
+}
 </style>
 </head>
 <body>
@@ -1248,9 +1331,9 @@ let compChecked = new Set();
 
 function randomComp() {
   const pool = getCompositionPool();
-  const picks = pickN(pool, Math.min(3, pool.length));
+  const v = pick(pool);
   const el = document.getElementById('comp-cards');
-  if (el) el.innerHTML = picks.map(v => makeCard('構図', v, 'acc-teal')).join('');
+  if (el) el.innerHTML = makeCard('構図', v, 'acc-teal');
 }
 
 function switchCompMode(mode) {
@@ -1354,17 +1437,17 @@ function setGender(gender, el) {
 /* ── 衣装 ── */
 function randomOutfit() {
   const pool = getOutfitPool();
-  const picks = pickN(pool, Math.min(3, pool.length));
+  const v = pick(pool);
   const el = document.getElementById('outfit-cards');
-  if (el) el.innerHTML = picks.map(v => makeCard('衣装', v, 'acc-gold')).join('');
+  if (el) el.innerHTML = makeCard('衣装', v, 'acc-gold');
 }
 
 /* ── 髪型 ── */
 function randomHair() {
   const pool = getHairPool();
-  const picks = pickN(pool, Math.min(3, pool.length));
+  const v = pick(pool);
   const el = document.getElementById('hair-cards');
-  if (el) el.innerHTML = picks.map(v => makeCard('髪型', v, 'acc-ink')).join('');
+  if (el) el.innerHTML = makeCard('髪型', v, 'acc-ink');
 }
 
 /* ── 表情 ── */
@@ -1376,9 +1459,9 @@ function getAllFacial() {
 
 function randomFacial() {
   const pool = facialChecked.size > 0 ? [...facialChecked] : getAllFacial();
-  const picks = pickN(pool, Math.min(3, pool.length));
+  const v = pick(pool);
   const el = document.getElementById('facial-cards');
-  if (el) el.innerHTML = picks.map(p => makeCard('表情', p, 'acc-red')).join('');
+  if (el) el.innerHTML = makeCard('表情', v, 'acc-red');
 }
 
 function switchFacialMode(mode) {
@@ -1459,8 +1542,8 @@ function getAllGijinka() {
 
 function randomGijinka() {
   const pool = gijinkaChecked.size > 0 ? [...gijinkaChecked] : getAllGijinka();
-  const picks = pickN(pool, Math.min(3, pool.length));
-  document.getElementById('gijinka-cards').innerHTML = picks.map(p => makeCard('擬人化テーマ', p, 'acc-purple')).join('');
+  const v = pick(pool);
+  document.getElementById('gijinka-cards').innerHTML = makeCard('擬人化テーマ', v, 'acc-purple');
 }
 
 function renderGijinkaChecklist() {
@@ -1546,8 +1629,8 @@ function getAllItems() {
 
 function randomItems() {
   const pool = itemsChecked.size > 0 ? [...itemsChecked] : getAllItems();
-  const picks = pickN(pool, Math.min(3, pool.length));
-  document.getElementById('items-cards').innerHTML = picks.map(p => makeCard('小物', p, 'acc-gold')).join('');
+  const v = pick(pool);
+  document.getElementById('items-cards').innerHTML = makeCard('小物', v, 'acc-gold');
 }
 
 function renderItemsChecklist() {

@@ -43,15 +43,22 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 .card-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1.5px solid var(--border);}
 .footer{margin-top:48px;font-size:12px;color:var(--muted);text-align:center;opacity:0.7;}
 @media(max-width:520px){
+  .wrapper { padding: 24px 16px 32px; }
+  .hero { margin-bottom: 24px; }
   .logo-text { font-size: 28px; }
-  .logo-icon { width: 48px; height: 48px; font-size: 24px; }
-  .hero { margin-bottom: 36px; }
-  .hero-desc { font-size: 14px; }
-  .cards { grid-template-columns: 1fr; max-width: 100%; gap: 12px; }
-  .nav-card { padding: 22px 18px 20px; gap: 10px; }
-  .card-title { font-size: 18px; }
-  .card-desc { font-size: 12px; }
-  .wrapper { padding: 32px 16px 48px; }
+  .logo-icon { width: 44px; height: 44px; font-size: 22px; border-radius: 12px; }
+  .logo-wrap { gap: 10px; margin-bottom: 10px; }
+  .tagline { font-size: 12px; padding: 4px 14px; margin-bottom: 12px; }
+  .hero-desc { font-size: 13px; line-height: 1.7; }
+  .cards { grid-template-columns: 1fr; max-width: 100%; gap: 10px; }
+  .nav-card { padding: 18px 16px 16px; gap: 8px; }
+  .card-bar { height: 4px; }
+  .card-emoji { font-size: 28px; }
+  .card-title { font-size: 17px; }
+  .card-desc { font-size: 12px; line-height: 1.6; }
+  .card-tags { gap: 4px; margin-top: 2px; }
+  .card-tag { font-size: 10px; padding: 2px 8px; }
+  .footer { margin-top: 24px; font-size: 11px; }
 }
 </style>
 </head>
